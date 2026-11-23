@@ -1,0 +1,7 @@
+---
+# Defaults for nagios role
+nagios_admin_user: nagiosadmin
+nagios_admin_password: AdminNagiosSecure2026!
+nagios_config_dir: /etc/nagios4
+nagios_conf_d: /etc/nagios4/conf.d
+nagios_plugins_dir: /usr/lib/nagios/plugins

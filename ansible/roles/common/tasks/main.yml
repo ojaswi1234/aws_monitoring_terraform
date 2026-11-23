@@ -1,0 +1,26 @@
+---
+# Common configuration role for Ubuntu servers
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install foundational packages
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - unzip
+      - htop
+      - net-tools
+      - software-properties-common
+      - ca-certificates
+      - systemd-timesyncd
+    state: present
+
+- name: Ensure systemd-timesyncd service is enabled and running
+  systemd:
+    name: systemd-timesyncd
+    enabled: yes
+    state: started

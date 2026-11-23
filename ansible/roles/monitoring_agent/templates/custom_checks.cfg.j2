@@ -1,0 +1,9 @@
+# Custom Nagios Remote Plugin Executor (NRPE) Commands
+# Executed by Nagios Monitoring Server via check_nrpe
+
+command[check_users]=/usr/lib/nagios/plugins/check_users -w 5 -c 10
+command[check_load]=/usr/lib/nagios/plugins/check_load -r -w 5.0,4.0,3.0 -c 10.0,8.0,6.0
+command[check_disk]=/usr/lib/nagios/plugins/check_disk -w 20% -c 10% -p /
+command[check_total_procs]=/usr/lib/nagios/plugins/check_procs -w 150 -c 200
+command[check_gunicorn_service]=/usr/lib/nagios/plugins/check_procs -c 1:10 -a "gunicorn"
+command[check_nginx_service]=/usr/lib/nagios/plugins/check_procs -c 1:10 -a "nginx"

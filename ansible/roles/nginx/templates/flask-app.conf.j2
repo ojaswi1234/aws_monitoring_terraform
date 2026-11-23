@@ -1,0 +1,59 @@
+server {
+    listen {{ nginx_listen_port }} default_server;
+    listen [::]:{{ nginx_listen_port }} default_server;
+
+    server_name _;
+    root {{ static_doc_root }};
+    index index.html;
+
+    # Nginx native health probe for Nagios (distinct from backend probe)
+    location /nginx-health {
+        access_log off;
+        default_type text/plain;
+        return 200 "nginx-ok\n";
+    }
+
+    # Proxy API requests to Gunicorn WSGI server
+    location /api/ {
+        proxy_pass http://127.0.0.1:{{ backend_proxy_port }};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 15s;
+    }
+
+    # Proxy liveness check directly to Flask backend
+    location /healthz {
+        proxy_pass http://127.0.0.1:{{ backend_proxy_port }}/healthz;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 3s;
+        proxy_read_timeout 5s;
+    }
+
+    # Proxy readiness check directly to Flask backend
+    location /readyz {
+        proxy_pass http://127.0.0.1:{{ backend_proxy_port }}/readyz;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 3s;
+        proxy_read_timeout 5s;
+    }
+
+    # Serve static frontend dashboard
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Custom error pages
+    error_page 502 503 504 /50x.html;
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+}

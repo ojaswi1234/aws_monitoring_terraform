@@ -1,0 +1,82 @@
+---
+- name: Install Nginx web server
+  apt:
+    name: nginx
+    state: present
+
+- name: Remove default Nginx site configuration
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Reload nginx
+
+- name: Deploy custom Nginx reverse proxy site configuration
+  template:
+    src: flask-app.conf.j2
+    dest: /etc/nginx/sites-available/flask-app.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Test nginx configuration
+    - Reload nginx
+
+- name: Enable custom Nginx site configuration
+  file:
+    src: /etc/nginx/sites-available/flask-app.conf
+    dest: /etc/nginx/sites-enabled/flask-app.conf
+    state: link
+  notify:
+    - Test nginx configuration
+    - Reload nginx
+
+- name: Ensure static web document root exists
+  file:
+    path: "{{ static_doc_root }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Deploy frontend dashboard static assets
+  copy:
+    src: "{{ playbook_dir }}/../../frontend/"
+    dest: "{{ static_doc_root }}/"
+    owner: www-data
+    group: www-data
+    mode: '0644'
+
+- name: Flush handlers to validate and reload Nginx
+  meta: flush_handlers
+
+- name: Ensure Nginx service is enabled and running
+  systemd:
+    name: nginx
+    enabled: yes
+    state: started
+
+- name: Validate Nginx self-health endpoint (/nginx-health)
+  uri:
+    url: "http://127.0.0.1:{{ nginx_listen_port }}/nginx-health"
+    method: GET
+    return_content: yes
+    status_code: 200
+  register: nginx_probe
+  retries: 3
+  delay: 2
+  until: nginx_probe.status == 200
+
+- name: Validate full request path to Flask backend through Nginx (/healthz)
+  uri:
+    url: "http://127.0.0.1:{{ nginx_listen_port }}/healthz"
+    method: GET
+    return_content: yes
+    status_code: 200
+  register: proxy_probe
+  retries: 3
+  delay: 2
+  until: proxy_probe.status == 200
+
+- name: Log Nginx verification status
+  debug:
+    msg: "Nginx reverse proxy is operational! Proxy test output: {{ proxy_probe.json }}"

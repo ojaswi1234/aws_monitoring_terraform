@@ -1,0 +1,66 @@
+---
+# ==============================================================================
+# Playbook: recover_flask.yml
+# Purpose: Controlled recovery of the Flask Gunicorn Backend Service
+# ==============================================================================
+- name: Recover Flask Backend Service on Application Server
+  hosts: webservers
+  become: yes
+  vars:
+    service_name: flask-backend
+    app_port: 8000
+
+  tasks:
+    - name: Record initial service status
+      command: systemctl status {{ service_name }}
+      register: initial_status
+      failed_when: false
+      changed_when: false
+
+    - name: Log initial failed service status
+      debug:
+        msg: "Initial service status before recovery: {{ initial_status.stdout_lines[:5] }}"
+
+    - name: Check that application wsgi entrypoint exists
+      stat:
+        path: /opt/flask-backend/wsgi.py
+      register: wsgi_stat
+      failed_when: not wsgi_stat.stat.exists
+
+    - name: Restart the Flask backend service via systemd
+      systemd:
+        name: "{{ service_name }}"
+        state: restarted
+
+    - name: Wait for Flask backend to bind to 127.0.0.1:{{ app_port }}
+      wait_for:
+        host: 127.0.0.1
+        port: "{{ app_port }}"
+        delay: 1
+        timeout: 20
+
+    - name: Verify local Flask backend health endpoint (/healthz)
+      uri:
+        url: "http://127.0.0.1:{{ app_port }}/healthz"
+        method: GET
+        return_content: yes
+        status_code: 200
+      register: local_probe
+      retries: 5
+      delay: 2
+      until: local_probe.status == 200
+
+    - name: Verify end-to-end request path through Nginx reverse proxy (/healthz)
+      uri:
+        url: "http://127.0.0.1:80/healthz"
+        method: GET
+        return_content: yes
+        status_code: 200
+      register: proxy_probe
+      retries: 3
+      delay: 2
+      until: proxy_probe.status == 200
+
+    - name: Report successful recovery
+      debug:
+        msg: "Recovery SUCCESSFUL! Flask backend is healthy and responding through Nginx reverse proxy."

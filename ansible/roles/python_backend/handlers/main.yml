@@ -1,0 +1,9 @@
+---
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Restart flask backend
+  systemd:
+    name: "{{ service_name }}"
+    state: restarted

@@ -1,0 +1,93 @@
+---
+- name: Install Nagios 4 Core, CGI, Apache2, and Nagios plugins
+  apt:
+    name:
+      - nagios4
+      - nagios4-cgi
+      - nagios-plugins
+      - nagios-plugins-basic
+      - nagios-plugins-standard
+      - nagios-nrpe-plugin
+      - apache2
+      - apache2-utils
+    state: present
+
+- name: Enable event handlers in Nagios main configuration
+  lineinfile:
+    path: "{{ nagios_config_dir }}/nagios.cfg"
+    regexp: '^enable_event_handlers='
+    line: "enable_event_handlers=1"
+    backup: yes
+  notify: Restart nagios service
+
+- name: Enable external commands in Nagios main configuration
+  lineinfile:
+    path: "{{ nagios_config_dir }}/nagios.cfg"
+    regexp: '^check_external_commands='
+    line: "check_external_commands=1"
+    backup: yes
+  notify: Restart nagios service
+
+- name: Ensure conf.d inclusion is enabled in nagios.cfg
+  lineinfile:
+    path: "{{ nagios_config_dir }}/nagios.cfg"
+    regexp: '^cfg_dir=/etc/nagios4/conf.d'
+    line: "cfg_dir=/etc/nagios4/conf.d"
+    state: present
+  notify: Restart nagios service
+
+- name: Deploy custom Nagios commands configuration
+  template:
+    src: custom_commands.cfg.j2
+    dest: "{{ nagios_conf_d }}/custom_commands.cfg"
+    owner: nagios
+    group: nagios
+    mode: '0644'
+  notify:
+    - Verify nagios configuration
+    - Restart nagios service
+
+- name: Deploy application server monitoring definition
+  template:
+    src: app-server.cfg.j2
+    dest: "{{ nagios_conf_d }}/app-server.cfg"
+    owner: nagios
+    group: nagios
+    mode: '0644'
+  notify:
+    - Verify nagios configuration
+    - Restart nagios service
+
+- name: Create or update Nagios Web Admin credentials
+  command: >
+    htpasswd -b -c /etc/nagios4/htpasswd.users {{ nagios_admin_user }} {{ nagios_admin_password }}
+  args:
+    creates: /etc/nagios4/htpasswd.users
+
+- name: Ensure correct permissions on htpasswd.users
+  file:
+    path: /etc/nagios4/htpasswd.users
+    owner: root
+    group: www-data
+    mode: '0640'
+
+- name: Enable required Apache modules for Nagios Web UI
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - cgi
+    - rewrite
+  notify: Restart apache service
+
+- name: Flush handlers to validate configuration and start services
+  meta: flush_handlers
+
+- name: Ensure Nagios and Apache services are enabled and started
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  loop:
+    - nagios4
+    - apache2

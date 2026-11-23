@@ -1,0 +1,68 @@
+---
+- name: Install Ansible on Monitoring Server for self-healing execution
+  apt:
+    name:
+      - ansible
+      - python3-pip
+    state: present
+
+- name: Create self-healing directory structure
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: nagios
+    group: nagios
+    mode: '0750'
+  loop:
+    - /opt/self-healing
+    - /opt/self-healing/playbooks
+    - /opt/self-healing/inventory
+
+- name: Deploy recovery playbooks to Monitoring Server
+  copy:
+    src: "{{ playbook_dir }}/{{ item }}"
+    dest: "/opt/self-healing/playbooks/{{ item }}"
+    owner: nagios
+    group: nagios
+    mode: '0640'
+  loop:
+    - recover_flask.yml
+    - recover_nginx.yml
+
+- name: Deploy inventory template for local recovery Ansible calls
+  template:
+    src: recovery_hosts.ini.j2
+    dest: /opt/self-healing/inventory/hosts.ini
+    owner: nagios
+    group: nagios
+    mode: '0640'
+
+- name: Deploy recovery wrapper scripts to /usr/local/bin
+  copy:
+    src: "{{ playbook_dir }}/../../monitoring/scripts/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: root
+    group: nagios
+    mode: '0755'
+  loop:
+    - recover_flask.sh
+    - recover_nginx.sh
+
+- name: Create centralized recovery log file with nagios write access
+  file:
+    path: /var/log/nagios_recovery.log
+    state: touch
+    owner: nagios
+    group: nagios
+    mode: '0664'
+
+- name: Configure restricted sudoers privileges for Nagios event handlers
+  copy:
+    dest: /etc/sudoers.d/nagios_recovery
+    content: |
+      # Restricted execution privileges for Nagios Self-Healing Automation
+      nagios ALL=(ALL) NOPASSWD: /usr/local/bin/recover_flask.sh, /usr/local/bin/recover_nginx.sh
+    owner: root
+    group: root
+    mode: '0440'
+    validate: 'visudo -cf %s'

@@ -1,0 +1,13 @@
+---
+- name: Verify nagios configuration
+  command: nagios4 -v /etc/nagios4/nagios.cfg
+
+- name: Restart nagios service
+  systemd:
+    name: nagios4
+    state: restarted
+
+- name: Restart apache service
+  systemd:
+    name: apache2
+    state: restarted

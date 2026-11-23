@@ -1,0 +1,17 @@
+---
+# ==============================================================================
+# Playbook: monitoring.yml
+# Purpose: Configure Nagios Core, NRPE Agents, and Recovery Integration
+# ==============================================================================
+- name: Configure NRPE Monitoring Agent on Application Server
+  hosts: webservers
+  become: yes
+  roles:
+    - monitoring_agent
+
+- name: Configure Nagios Core Monitoring Server & Self-Healing
+  hosts: monitoring
+  become: yes
+  roles:
+    - nagios
+    - recovery

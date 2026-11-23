@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Self-Healing System Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>Automated DevOps Infrastructure & Self-Healing System</h1>
+            <p class="subtitle">Terraform &bull; Ansible &bull; Nginx &bull; Gunicorn &bull; Python Flask &bull; Nagios Core</p>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <section class="card status-overview">
+            <h2>System Health & Status</h2>
+            <div class="status-grid">
+                <div class="status-item" id="card-liveness">
+                    <span class="label">Liveness (/healthz)</span>
+                    <span class="badge" id="liveness-badge">Checking...</span>
+                </div>
+                <div class="status-item" id="card-readiness">
+                    <span class="label">Readiness (/readyz)</span>
+                    <span class="badge" id="readiness-badge">Checking...</span>
+                </div>
+                <div class="status-item" id="card-service">
+                    <span class="label">Backend Service</span>
+                    <span class="value" id="service-name">--</span>
+                </div>
+                <div class="status-item" id="card-uptime">
+                    <span class="label">Backend Uptime</span>
+                    <span class="value" id="uptime-val">--</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card api-inspection">
+            <h2>Live API Endpoints</h2>
+            <div class="button-group">
+                <button class="btn" onclick="fetchEndpoint('/healthz')">GET /healthz</button>
+                <button class="btn" onclick="fetchEndpoint('/readyz')">GET /readyz</button>
+                <button class="btn" onclick="fetchEndpoint('/api/v1/status')">GET /api/v1/status</button>
+                <button class="btn" onclick="fetchEndpoint('/api/v1/info')">GET /api/v1/info</button>
+                <button class="btn" onclick="fetchEndpoint('/api/v1/metrics')">GET /api/v1/metrics</button>
+            </div>
+            <pre class="json-viewer" id="json-output">Select an endpoint above or wait for auto-refresh...</pre>
+        </section>
+
+        <section class="card architecture-info">
+            <h2>Architecture Flow</h2>
+            <p><strong>Request Path:</strong> Client &rarr; Nginx (:80 Reverse Proxy) &rarr; Gunicorn (127.0.0.1:8000 WSGI) &rarr; Flask App</p>
+            <p><strong>Monitoring:</strong> Nagios Core verifies <code>/healthz</code> every check cycle.</p>
+            <p><strong>Self-Healing:</strong> Upon HARD CRITICAL detection, Nagios invokes Ansible playbook to restart <code>flask-backend.service</code> and verify recovery.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>DevOps Self-Healing Project &bull; Built with Terraform, Ansible, Python, Gunicorn, Nginx & Nagios Core</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

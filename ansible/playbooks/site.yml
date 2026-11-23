@@ -1,0 +1,28 @@
+---
+# ==============================================================================
+# Master Site Playbook: Provisions and configures both EC2 instances
+# ==============================================================================
+
+# 1. Base configuration on all hosts
+- name: Apply common configuration across all infrastructure
+  hosts: all
+  become: yes
+  roles:
+    - common
+
+# 2. Application Server Configuration (Python Backend, Gunicorn, Nginx, NRPE Agent)
+- name: Configure Application Server and Deploy Stack
+  hosts: webservers
+  become: yes
+  roles:
+    - python_backend
+    - nginx
+    - monitoring_agent
+
+# 3. Monitoring Server Configuration (Nagios Core, Plugins, Recovery Automation)
+- name: Configure Nagios Monitoring Server and Self-Healing Automation
+  hosts: monitoring
+  become: yes
+  roles:
+    - nagios
+    - recovery

@@ -1,0 +1,9 @@
+---
+# Defaults for python_backend role
+app_user: flaskapp
+app_group: flaskapp
+app_dir: /opt/flask-backend
+venv_dir: /opt/flask-backend/venv
+app_port: 8000
+app_workers: 2
+service_name: flask-backend

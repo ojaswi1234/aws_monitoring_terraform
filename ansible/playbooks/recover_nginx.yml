@@ -1,0 +1,53 @@
+---
+# ==============================================================================
+# Playbook: recover_nginx.yml
+# Purpose: Controlled recovery of Nginx Reverse Proxy Web Server
+# ==============================================================================
+- name: Recover Nginx Reverse Proxy on Application Server
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Validate Nginx configuration syntax before attempting restart
+      command: nginx -t
+      register: nginx_syntax_check
+      failed_when: nginx_syntax_check.rc != 0
+      changed_when: false
+
+    - name: Restart Nginx service via systemd
+      systemd:
+        name: nginx
+        state: restarted
+
+    - name: Wait for Nginx port 80 to become available
+      wait_for:
+        host: 127.0.0.1
+        port: 80
+        delay: 1
+        timeout: 15
+
+    - name: Verify Nginx internal health endpoint (/nginx-health)
+      uri:
+        url: "http://127.0.0.1:80/nginx-health"
+        method: GET
+        return_content: yes
+        status_code: 200
+      register: nginx_probe
+      retries: 3
+      delay: 2
+      until: nginx_probe.status == 200
+
+    - name: Verify application path through Nginx (/healthz)
+      uri:
+        url: "http://127.0.0.1:80/healthz"
+        method: GET
+        return_content: yes
+        status_code: 200
+      register: app_probe
+      retries: 3
+      delay: 2
+      until: app_probe.status == 200
+
+    - name: Report successful Nginx recovery
+      debug:
+        msg: "Recovery SUCCESSFUL! Nginx service and reverse proxy routing have been restored."

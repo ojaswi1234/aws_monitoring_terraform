@@ -1,0 +1,13 @@
+---
+- name: Test nginx configuration
+  command: nginx -t
+
+- name: Reload nginx
+  systemd:
+    name: nginx
+    state: reloaded
+
+- name: Restart nginx
+  systemd:
+    name: nginx
+    state: restarted

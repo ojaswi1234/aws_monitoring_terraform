@@ -1,0 +1,40 @@
+---
+- name: Install NRPE server and standard monitoring plugins
+  apt:
+    name:
+      - nagios-nrpe-server
+      - nagios-plugins
+      - nagios-plugins-basic
+      - nagios-plugins-standard
+    state: present
+
+- name: Ensure custom NRPE configuration directory exists
+  file:
+    path: /etc/nagios/nrpe.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configure allowed hosts in NRPE main configuration
+  lineinfile:
+    path: /etc/nagios/nrpe.cfg
+    regexp: '^allowed_hosts='
+    line: "allowed_hosts=127.0.0.1,::1,{{ monitor_server_private_ip | default('127.0.0.1') }}"
+    backup: yes
+  notify: Restart nrpe service
+
+- name: Deploy custom NRPE check command definitions
+  template:
+    src: custom_checks.cfg.j2
+    dest: /etc/nagios/nrpe.d/custom_checks.cfg
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart nrpe service
+
+- name: Ensure NRPE server service is enabled and started
+  systemd:
+    name: nagios-nrpe-server
+    enabled: yes
+    state: started

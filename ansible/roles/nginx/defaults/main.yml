@@ -1,0 +1,5 @@
+---
+# Defaults for nginx role
+nginx_listen_port: 80
+backend_proxy_port: 8000
+static_doc_root: /var/www/html

@@ -1,0 +1,95 @@
+# ==============================================================================
+# Nagios Host & Service Definitions for Application Server
+# ==============================================================================
+
+define host {
+    use                     generic-host
+    host_name               app-server
+    alias                   Python Flask & Nginx Application Server
+    address                 {{ app_server_private_ip | default('127.0.0.1') }}
+    max_check_attempts      3
+    check_period            24x7
+    check_command           check-host-alive
+    notification_interval   60
+    notification_period     24x7
+    notification_options    d,u,r
+}
+
+# 1. Nginx Web Server Availability & Health Check
+define service {
+    use                     generic-service
+    host_name               app-server
+    service_description     Nginx Web Service
+    check_command           check_http_custom!80!/nginx-health!200!nginx-ok
+    max_check_attempts      3
+    check_interval          1
+    retry_interval          1
+    check_period            24x7
+    notification_interval   30
+    notification_period     24x7
+    event_handler           recover_nginx_event_handler
+    event_handler_enabled   1
+}
+
+# 2. Flask Backend Liveness Endpoint (/healthz)
+define service {
+    use                     generic-service
+    host_name               app-server
+    service_description     Flask Backend Health
+    check_command           check_http_custom!80!/healthz!200!python-backend
+    max_check_attempts      3
+    check_interval          1
+    retry_interval          1
+    check_period            24x7
+    notification_interval   30
+    notification_period     24x7
+    event_handler           recover_flask_event_handler
+    event_handler_enabled   1
+}
+
+# 3. Flask Backend Readiness Endpoint (/readyz)
+define service {
+    use                     generic-service
+    host_name               app-server
+    service_description     Flask Backend Readiness
+    check_command           check_http_custom!80!/readyz!200!ready
+    max_check_attempts      3
+    check_interval          1
+    retry_interval          1
+    check_period            24x7
+    notification_interval   60
+    notification_period     24x7
+}
+
+# 4. SSH Remote Access Check
+define service {
+    use                     generic-service
+    host_name               app-server
+    service_description     SSH Access
+    check_command           check_ssh
+    max_check_attempts      3
+    check_interval          5
+    retry_interval          1
+}
+
+# 5. Disk Utilization (via NRPE)
+define service {
+    use                     generic-service
+    host_name               app-server
+    service_description     Root Disk Usage
+    check_command           check_nrpe_1arg!check_disk
+    max_check_attempts      3
+    check_interval          5
+    retry_interval          1
+}
+
+# 6. CPU Load Average (via NRPE)
+define service {
+    use                     generic-service
+    host_name               app-server
+    service_description     System CPU Load
+    check_command           check_nrpe_1arg!check_load
+    max_check_attempts      3
+    check_interval          5
+    retry_interval          1
+}

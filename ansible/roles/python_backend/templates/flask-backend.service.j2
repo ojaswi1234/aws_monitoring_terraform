@@ -1,0 +1,29 @@
+[Unit]
+Description=Gunicorn instance serving Flask Backend (DevOps Self-Healing)
+After=network.target
+
+[Service]
+User={{ app_user }}
+Group={{ app_group }}
+WorkingDirectory={{ app_dir }}
+Environment="PATH={{ venv_dir }}/bin"
+Environment="FLASK_ENV=production"
+ExecStart={{ venv_dir }}/bin/gunicorn \
+    --workers {{ app_workers }} \
+    --bind 127.0.0.1:{{ app_port }} \
+    --access-logfile - \
+    --error-logfile - \
+    wsgi:app
+
+Restart=on-failure
+RestartSec=3s
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening directives
+ProtectSystem=full
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

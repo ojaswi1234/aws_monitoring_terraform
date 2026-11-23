@@ -1,0 +1,11 @@
+---
+# ==============================================================================
+# Playbook: deploy.yml
+# Purpose: Deploy/Update Python Backend and Nginx reverse proxy
+# ==============================================================================
+- name: Deploy Python Backend Application and Reverse Proxy
+  hosts: webservers
+  become: yes
+  roles:
+    - python_backend
+    - nginx

@@ -1,0 +1,70 @@
+# Git Ignore for Automated DevOps Self-Healing Project
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment variables & local secrets
+.env
+.env.*
+*.pem
+*.key
+*.pub
+id_rsa
+id_rsa.pub
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+crash.*.log
+*.tfvars
+!terraform.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ansible
+inventory/hosts.ini
+*.retry
+
+# Logs and runtime artifacts
+*.log
+recovery.log
+.systemd_service.status
+
+# OS & Editor generated files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
