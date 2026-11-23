@@ -20,9 +20,9 @@ admin_ip = "0.0.0.0/0"
 # EC2 Instance Type (t2.micro / t3.micro are AWS Free Tier eligible)
 instance_type = "t2.micro"
 
-# SSH Key paths (defaults to ~/.ssh/id_rsa.pub and ~/.ssh/id_rsa)
-ssh_public_key_path  = "~/.ssh/id_rsa.pub"
-ssh_private_key_path = "~/.ssh/id_rsa"
+# SSH Key paths (defaults to project-contained keys/id_rsa.pub and keys/id_rsa)
+ssh_public_key_path  = "../keys/id_rsa.pub"
+ssh_private_key_path = "../keys/id_rsa"
 
 # Disk storage sizes in GB (Total 30GB is covered under AWS Free Tier)
 monitor_disk_size = 20

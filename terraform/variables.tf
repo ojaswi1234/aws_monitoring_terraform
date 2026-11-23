@@ -49,13 +49,13 @@ variable "instance_type" {
 variable "ssh_public_key_path" {
   description = "Local path to the SSH public key for EC2 instance access"
   type        = string
-  default     = "~/.ssh/id_rsa.pub"
+  default     = "../keys/id_rsa.pub"
 }
 
 variable "ssh_private_key_path" {
   description = "Local path to the SSH private key used by Ansible to connect"
   type        = string
-  default     = "~/.ssh/id_rsa"
+  default     = "../keys/id_rsa"
 }
 
 variable "monitor_disk_size" {
