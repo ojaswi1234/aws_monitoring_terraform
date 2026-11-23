@@ -21,7 +21,7 @@ if [ -f "$PID_FILE" ]; then
     rm -f "$PID_FILE"
 fi
 
-# Stop Nagios PHP Web Server
+# Stop Nagios Python Web Server
 if [ -f "$NAGIOS_PID_FILE" ]; then
     N_PID=$(cat "$NAGIOS_PID_FILE")
     if kill -0 "$N_PID" 2>/dev/null; then
@@ -31,7 +31,7 @@ if [ -f "$NAGIOS_PID_FILE" ]; then
     rm -f "$NAGIOS_PID_FILE"
 fi
 
-# Kill any stray processes on 8000 or 8085
-pkill -f "php -S 0.0.0.0:8085" 2>/dev/null || true
+# Clean up any stray processes on 8085
+pkill -f "nagios_server.py" 2>/dev/null || true
 
 echo "==> All local servers have been stopped."

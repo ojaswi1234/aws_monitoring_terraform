@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Script: start_local.sh
-# Purpose: Start both Gunicorn (Port 8000) and Nagios Core Dashboard (Port 8085)
+# Purpose: Start both Gunicorn (Port 8000) and Nagios Core CGI Server (Port 8085)
 # ==============================================================================
 
 set -euo pipefail
@@ -31,16 +31,14 @@ else
     sleep 1
 fi
 
-# 2. Start Nagios Core Web UI on Port 8085
-if [ -d "/usr/share/nagios4/htdocs" ]; then
-    if [ -f "$NAGIOS_PID_FILE" ] && kill -0 "$(cat "$NAGIOS_PID_FILE")" 2>/dev/null; then
-        echo "Nagios Web UI is already running on port $NAGIOS_PORT"
-    else
-        echo "==> Starting Nagios Core Web UI on port $NAGIOS_PORT..."
-        php -S "0.0.0.0:$NAGIOS_PORT" -t /usr/share/nagios4/htdocs > /dev/null 2>&1 &
-        echo $! > "$NAGIOS_PID_FILE"
-        sleep 1
-    fi
+# 2. Start Nagios Core CGI & Web Server on Port 8085
+if [ -f "$NAGIOS_PID_FILE" ] && kill -0 "$(cat "$NAGIOS_PID_FILE")" 2>/dev/null; then
+    echo "Nagios Web Server is already running on port $NAGIOS_PORT"
+else
+    echo "==> Starting Nagios Core CGI Web Server on port $NAGIOS_PORT..."
+    python3 "$SCRIPT_DIR/nagios_server.py" > /dev/null 2>&1 &
+    echo $! > "$NAGIOS_PID_FILE"
+    sleep 1
 fi
 
 echo "================================================================="
