@@ -1,12 +1,19 @@
-from flask import Blueprint, jsonify, current_app, request
+import os
+from flask import Blueprint, jsonify, current_app, request, send_from_directory
 from app.services.metrics_tracker import tracker
 
 info_bp = Blueprint("info", __name__)
 
 @info_bp.route("/", methods=["GET"])
 def index():
-    """Application landing endpoint."""
+    """Application landing endpoint: serves dashboard for browsers, JSON for APIs."""
     accept_header = request.headers.get("Accept", "")
+    frontend_dir = os.path.abspath(os.path.join(current_app.root_path, "../../frontend"))
+
+    # If accessed by a web browser, serve the dashboard
+    if "text/html" in accept_header and "application/json" not in accept_header and os.path.exists(os.path.join(frontend_dir, "index.html")):
+        return send_from_directory(frontend_dir, "index.html")
+
     data = {
         "project": current_app.config.get("APP_NAME", "DevOps Self-Healing System"),
         "version": current_app.config.get("VERSION", "1.0.0"),
@@ -25,6 +32,17 @@ def index():
         }
     }
     return jsonify(data), 200
+
+# Static asset routes for local execution without Nginx
+@info_bp.route("/css/<path:filename>", methods=["GET"])
+def serve_css(filename):
+    frontend_dir = os.path.abspath(os.path.join(current_app.root_path, "../../frontend/css"))
+    return send_from_directory(frontend_dir, filename)
+
+@info_bp.route("/js/<path:filename>", methods=["GET"])
+def serve_js(filename):
+    frontend_dir = os.path.abspath(os.path.join(current_app.root_path, "../../frontend/js"))
+    return send_from_directory(frontend_dir, filename)
 
 @info_bp.route("/api/v1/info", methods=["GET"])
 def get_info():
