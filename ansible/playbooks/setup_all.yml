@@ -1,0 +1,183 @@
+---
+# ==============================================================================
+# Playbook: setup_all.yml
+# Purpose: Single, linear, easy-to-read deployment playbook for both servers
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# PLAY 1: Setup Application Server (Flask, Gunicorn, Nginx, NRPE)
+# ------------------------------------------------------------------------------
+- name: Setup Application Server
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: 1. Update apt package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: 2. Install Python 3, pip, virtualenv, and Nginx
+      apt:
+        name:
+          - python3
+          - python3-pip
+          - python3-venv
+          - nginx
+          - nagios-nrpe-server
+          - nagios-plugins
+        state: present
+
+    - name: 3. Create application user 'flaskapp'
+      user:
+        name: flaskapp
+        system: yes
+        create_home: no
+        shell: /usr/sbin/nologin
+
+    - name: 4. Create application folder /opt/flask-backend
+      file:
+        path: /opt/flask-backend
+        state: directory
+        owner: flaskapp
+        group: flaskapp
+        mode: '0755'
+
+    - name: 5. Copy backend source code to server
+      copy:
+        src: "{{ playbook_dir }}/../../backend/"
+        dest: /opt/flask-backend/
+        owner: flaskapp
+        group: flaskapp
+        mode: '0755'
+
+    - name: 6. Create Python virtual environment and install requirements
+      pip:
+        requirements: /opt/flask-backend/requirements.txt
+        virtualenv: /opt/flask-backend/venv
+
+    - name: 7. Deploy systemd service for Gunicorn
+      copy:
+        dest: /etc/systemd/system/flask-backend.service
+        content: |
+          [Unit]
+          Description=Flask Gunicorn Backend Service
+          After=network.target
+
+          [Service]
+          User=flaskapp
+          Group=flaskapp
+          WorkingDirectory=/opt/flask-backend
+          ExecStart=/opt/flask-backend/venv/bin/gunicorn --bind 127.0.0.1:8000 --workers 2 wsgi:app
+          Restart=on-failure
+          RestartSec=3s
+
+          [Install]
+          WantedBy=multi-user.target
+        mode: '0644'
+
+    - name: 8. Start and enable flask-backend service
+      systemd:
+        name: flask-backend
+        enabled: yes
+        state: started
+        daemon_reload: yes
+
+    - name: 9. Configure Nginx reverse proxy
+      copy:
+        dest: /etc/nginx/sites-available/flask-app.conf
+        content: |
+          server {
+              listen 80 default_server;
+              server_name _;
+              root /var/www/html;
+              index index.html;
+
+              location /nginx-health {
+                  return 200 "nginx-ok\n";
+              }
+
+              location /api/ {
+                  proxy_pass http://127.0.0.1:8000;
+              }
+
+              location /healthz {
+                  proxy_pass http://127.0.0.1:8000/healthz;
+              }
+
+              location /readyz {
+                  proxy_pass http://127.0.0.1:8000/readyz;
+              }
+
+              location / {
+                  try_files $uri $uri/ /index.html;
+              }
+          }
+        mode: '0644'
+
+    - name: 10. Enable Nginx site and remove default
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: 11. Link custom Nginx site
+      file:
+        src: /etc/nginx/sites-available/flask-app.conf
+        dest: /etc/nginx/sites-enabled/flask-app.conf
+        state: link
+
+    - name: 12. Deploy frontend dashboard to /var/www/html
+      copy:
+        src: "{{ playbook_dir }}/../../frontend/"
+        dest: /var/www/html/
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: 13. Restart Nginx to apply changes
+      systemd:
+        name: nginx
+        state: restarted
+        enabled: yes
+
+# ------------------------------------------------------------------------------
+# PLAY 2: Setup Monitoring Server (Nagios Core 4.x & Self-Healing Scripts)
+# ------------------------------------------------------------------------------
+- name: Setup Nagios Monitoring Server
+  hosts: monitoring
+  become: yes
+  tasks:
+    - name: 1. Install Nagios 4, Apache, and plugins
+      apt:
+        name:
+          - nagios4
+          - nagios4-cgi
+          - nagios-plugins
+          - nagios-nrpe-plugin
+          - apache2
+        state: present
+
+    - name: 2. Enable event handlers in nagios.cfg
+      lineinfile:
+        path: /etc/nagios4/nagios.cfg
+        regexp: '^enable_event_handlers='
+        line: 'enable_event_handlers=1'
+
+    - name: 3. Deploy recovery scripts to /usr/local/bin
+      copy:
+        src: "{{ playbook_dir }}/../../monitoring/scripts/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        owner: root
+        group: nagios
+        mode: '0755'
+      loop:
+        - recover_flask.sh
+        - recover_nginx.sh
+
+    - name: 4. Restart Nagios and Apache services
+      systemd:
+        name: "{{ item }}"
+        state: restarted
+        enabled: yes
+      loop:
+        - nagios4
+        - apache2
