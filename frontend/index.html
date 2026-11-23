@@ -3,20 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevOps Self-Healing System Dashboard</title>
+    <title>DevOps Infrastructure & Self-Healing Console</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header>
         <div class="header-container">
-            <h1>Automated DevOps Infrastructure & Self-Healing System</h1>
-            <p class="subtitle">Terraform &bull; Ansible &bull; Nginx &bull; Gunicorn &bull; Python Flask &bull; Nagios Core</p>
+            <div>
+                <div class="brand-title">DevOps Infrastructure & Self-Healing Console</div>
+                <p class="subtitle">Terraform &bull; Ansible &bull; Nginx &bull; Gunicorn &bull; Python Flask &bull; Nagios Core 4.x</p>
+            </div>
+            <div class="header-status-indicator">
+                <span class="pulse-dot"></span>
+                <span>SYSTEM ACTIVE</span>
+            </div>
         </div>
     </header>
 
     <main class="dashboard-container">
+        <!-- Status Overview Card -->
         <section class="card status-overview">
-            <h2>System Health & Status</h2>
+            <h2>Live Service Status & Health Probes</h2>
             <div class="status-grid">
                 <div class="status-item" id="card-liveness">
                     <span class="label">Liveness (/healthz)</span>
@@ -27,18 +34,19 @@
                     <span class="badge" id="readiness-badge">Checking...</span>
                 </div>
                 <div class="status-item" id="card-service">
-                    <span class="label">Backend Service</span>
-                    <span class="value" id="service-name">--</span>
+                    <span class="label">Backend Runtime</span>
+                    <span class="value" id="service-name">python-backend</span>
                 </div>
                 <div class="status-item" id="card-uptime">
                     <span class="label">Backend Uptime</span>
-                    <span class="value" id="uptime-val">--</span>
+                    <span class="value" id="uptime-val">0.0s</span>
                 </div>
             </div>
         </section>
 
+        <!-- API Interactive Explorer -->
         <section class="card api-inspection">
-            <h2>Live API Endpoints</h2>
+            <h2>Interactive REST API Inspection</h2>
             <div class="button-group">
                 <button class="btn" onclick="fetchEndpoint('/healthz')">GET /healthz</button>
                 <button class="btn" onclick="fetchEndpoint('/readyz')">GET /readyz</button>
@@ -49,16 +57,32 @@
             <pre class="json-viewer" id="json-output">Select an endpoint above or wait for auto-refresh...</pre>
         </section>
 
+        <!-- DevOps Architecture Pipeline -->
         <section class="card architecture-info">
-            <h2>Architecture Flow</h2>
-            <p><strong>Request Path:</strong> Client &rarr; Nginx (:80 Reverse Proxy) &rarr; Gunicorn (127.0.0.1:8000 WSGI) &rarr; Flask App</p>
-            <p><strong>Monitoring:</strong> Nagios Core verifies <code>/healthz</code> every check cycle.</p>
-            <p><strong>Self-Healing:</strong> Upon HARD CRITICAL detection, Nagios invokes Ansible playbook to restart <code>flask-backend.service</code> and verify recovery.</p>
+            <h2>Infrastructure Automation & Self-Healing Pipeline</h2>
+            <div class="architecture-grid">
+                <div class="arch-node">
+                    <h3>1. Provisioning (Terraform)</h3>
+                    <p>Automates AWS VPC (10.0.0.0/16), public subnets, least-privilege security groups, and EC2 instances.</p>
+                </div>
+                <div class="arch-node">
+                    <h3>2. Configuration (Ansible)</h3>
+                    <p>Deploys Python virtualenv, systemd units, Gunicorn, Nginx reverse proxy, and Nagios Core 4.x.</p>
+                </div>
+                <div class="arch-node">
+                    <h3>3. Monitoring (Nagios Core)</h3>
+                    <p>Continuously tests HTTP /healthz and NRPE metrics. Distinguishes transient SOFT vs persistent HARD states.</p>
+                </div>
+                <div class="arch-node">
+                    <h3>4. Self-Healing (Closed-Loop)</h3>
+                    <p>Upon HARD CRITICAL, event handler executes Ansible recovery playbook over private VPC network to restore service.</p>
+                </div>
+            </div>
         </section>
     </main>
 
     <footer>
-        <p>DevOps Self-Healing Project &bull; Built with Terraform, Ansible, Python, Gunicorn, Nginx & Nagios Core</p>
+        <p>4th Year DevOps Project Evaluation &bull; Automated Cloud Infrastructure & Self-Healing System</p>
     </footer>
 
     <script src="js/app.js"></script>
