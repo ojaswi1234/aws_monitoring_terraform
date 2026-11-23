@@ -13,9 +13,14 @@
                 <div class="brand-title">DevOps Infrastructure & Self-Healing Console</div>
                 <p class="subtitle">Terraform &bull; Ansible &bull; Nginx &bull; Gunicorn &bull; Python Flask &bull; Nagios Core 4.x</p>
             </div>
-            <div class="header-status-indicator">
-                <span class="pulse-dot" id="global-pulse"></span>
-                <span id="global-status-text">SYSTEM OPERATIONAL</span>
+            <div style="display:flex;align-items:center;gap:1rem;">
+                <a href="http://localhost:8085" target="_blank" class="btn" style="background:#0284c7;color:white;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:0.4rem;">
+                    🖥️ Open Nagios Core Dashboard (:8085)
+                </a>
+                <div class="header-status-indicator">
+                    <span class="pulse-dot" id="global-pulse"></span>
+                    <span id="global-status-text">SYSTEM OPERATIONAL</span>
+                </div>
             </div>
         </div>
     </header>
