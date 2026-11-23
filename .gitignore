@@ -54,10 +54,12 @@ override.tf.json
 
 # Ansible
 inventory/hosts.ini
+**/hosts.ini
 *.retry
 
 # Logs and runtime artifacts
 *.log
+*.pid
 recovery.log
 .systemd_service.status
 

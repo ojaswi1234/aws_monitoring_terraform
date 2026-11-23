@@ -1,8 +1,104 @@
 import os
+import json
 from flask import Blueprint, jsonify, current_app, request, send_from_directory
 from app.services.metrics_tracker import tracker
 
 info_bp = Blueprint("info", __name__)
+
+def load_aws_infrastructure():
+    """Dynamically load real AWS infrastructure topology from Terraform state if available."""
+    candidates = [
+        os.path.abspath(os.path.join(current_app.root_path, "../../terraform/terraform.tfstate")),
+        "/home/ob/devops-self-healing-project/terraform/terraform.tfstate",
+        os.path.join(os.getcwd(), "terraform/terraform.tfstate")
+    ]
+    
+    tfstate_path = None
+    for c in candidates:
+        if os.path.exists(c):
+            tfstate_path = c
+            break
+
+    if tfstate_path:
+        try:
+            with open(tfstate_path, "r") as f:
+                state = json.load(f)
+            
+            instances = []
+            vpc_id = "vpc-0406f052d9dbad5a3"
+            subnet_id = "subnet-01ba87b9561b419e6"
+
+            for res in state.get("resources", []):
+                res_type = res.get("type")
+                if res_type == "aws_vpc":
+                    for inst in res.get("instances", []):
+                        vpc_id = inst.get("attributes", {}).get("id", vpc_id)
+                elif res_type == "aws_subnet":
+                    for inst in res.get("instances", []):
+                        subnet_id = inst.get("attributes", {}).get("id", subnet_id)
+                elif res_type == "aws_instance":
+                    res_name = res.get("name")
+                    for inst in res.get("instances", []):
+                        attrs = inst.get("attributes", {})
+                        is_monitor = "monitor" in res_name
+                        instances.append({
+                            "id": attrs.get("id"),
+                            "name": attrs.get("tags", {}).get("Name", res_name),
+                            "role": "Nagios Core 4.x & Ansible Engine" if is_monitor else "Nginx + Gunicorn + Flask REST API",
+                            "type": attrs.get("instance_type", "t2.micro"),
+                            "private_ip": attrs.get("private_ip"),
+                            "public_ip": attrs.get("public_ip"),
+                            "security_group": attrs.get("vpc_security_group_ids", ["sg-default"])[0] if attrs.get("vpc_security_group_ids") else "sg-default",
+                            "services": ["nagios4", "apache2"] if is_monitor else ["nginx", "flask-backend", "nagios-nrpe-server"],
+                            "status": attrs.get("instance_state", "running")
+                        })
+            if instances:
+                instances.sort(key=lambda x: 0 if "monitor" in x["name"] else 1)
+                return {
+                    "cloud_provider": "Amazon Web Services (AWS)",
+                    "region": "us-east-1",
+                    "vpc_id": vpc_id,
+                    "vpc_cidr": "10.0.0.0/16",
+                    "subnet_id": subnet_id,
+                    "subnet_cidr": "10.0.1.0/24",
+                    "instances": instances
+                }
+        except Exception:
+            pass
+
+    # Exact live AWS provisioned values fallback
+    return {
+        "cloud_provider": "Amazon Web Services (AWS)",
+        "region": "us-east-1",
+        "vpc_id": "vpc-0406f052d9dbad5a3",
+        "vpc_cidr": "10.0.0.0/16",
+        "subnet_id": "subnet-01ba87b9561b419e6",
+        "subnet_cidr": "10.0.1.0/24",
+        "instances": [
+            {
+                "id": "i-0839b0eeb087d3e45",
+                "name": "devops-self-healing-monitor-server",
+                "role": "Nagios Core 4.x & Ansible Engine",
+                "type": "t2.micro",
+                "private_ip": "10.0.1.28",
+                "public_ip": "44.223.101.208",
+                "security_group": "sg-0db558370655a1ea2",
+                "services": ["nagios4", "apache2"],
+                "status": "running"
+            },
+            {
+                "id": "i-00f3e3f270983d9a5",
+                "name": "devops-self-healing-app-server",
+                "role": "Nginx Reverse Proxy + Gunicorn + Flask",
+                "type": "t2.micro",
+                "private_ip": "10.0.1.45",
+                "public_ip": "98.84.41.102",
+                "security_group": "sg-0f351010186238c49",
+                "services": ["nginx", "flask-backend", "nagios-nrpe-server"],
+                "status": "running"
+            }
+        ]
+    }
 
 @info_bp.route("/", methods=["GET"])
 def index():
@@ -66,33 +162,4 @@ def get_metrics():
 @info_bp.route("/api/v1/infrastructure", methods=["GET"])
 def get_infrastructure():
     """Return provisioned AWS cloud topology & instance details."""
-    return jsonify({
-        "cloud_provider": "Amazon Web Services (AWS)",
-        "region": "us-east-1",
-        "vpc_cidr": "10.0.0.0/16",
-        "subnet_cidr": "10.0.1.0/24",
-        "instances": [
-            {
-                "id": "i-091a4b872c019d3f1",
-                "name": "monitor-server",
-                "role": "Nagios Core 4.x & Ansible Engine",
-                "type": "t2.micro",
-                "private_ip": "10.0.1.50",
-                "public_ip": "54.210.42.118",
-                "security_group": "devops-self-healing-monitor-sg",
-                "services": ["nagios4", "apache2"],
-                "status": "running"
-            },
-            {
-                "id": "i-0b5c9e217d832e4a2",
-                "name": "app-server",
-                "role": "Nginx Reverse Proxy + Gunicorn + Flask",
-                "type": "t2.micro",
-                "private_ip": "10.0.1.60",
-                "public_ip": "54.210.42.119",
-                "security_group": "devops-self-healing-app-sg",
-                "services": ["nginx", "flask-backend", "nagios-nrpe-server"],
-                "status": "running"
-            }
-        ]
-    }), 200
+    return jsonify(load_aws_infrastructure()), 200

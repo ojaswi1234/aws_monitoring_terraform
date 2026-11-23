@@ -1,5 +1,6 @@
 import os
-from flask import Blueprint, jsonify, current_app
+import subprocess
+from flask import Blueprint, jsonify, current_app, request
 
 health_bp = Blueprint("health", __name__)
 
@@ -12,7 +13,7 @@ def health_check():
         return jsonify({
             "status": "CRITICAL",
             "service": current_app.config.get("SERVICE_NAME", "python-backend"),
-            "error": "Service Failure: Gunicorn process terminated (Simulated Crash)",
+            "error": "Service Failure: Gunicorn worker process terminated (Simulated Crash)",
             "nagios_state": "CRITICAL"
         }), 503
 
@@ -30,7 +31,7 @@ def readiness_check():
             "status": "UNREADY",
             "service": "python-backend",
             "ready": False,
-            "reason": "Backend dependency offline"
+            "reason": "Backend dependency offline (Simulated Crash)"
         }), 503
 
     is_ready = bool(current_app.config.get("SERVICE_NAME"))
@@ -48,7 +49,7 @@ def readiness_check():
         "ready": True
     }), 200
 
-# Interactive simulation endpoints for live demonstration
+# Failure simulation and self-healing recovery endpoints
 @health_bp.route("/api/v1/simulate/crash", methods=["POST", "GET"])
 def simulate_crash():
     with open(CRASH_FLAG_FILE, "w") as f:
@@ -56,7 +57,7 @@ def simulate_crash():
     return jsonify({
         "action": "simulate_crash",
         "status": "CRITICAL",
-        "message": "Simulated backend failure activated! /healthz now returning 503 CRITICAL.",
+        "message": "Simulated service crash initiated. Gunicorn backend marked UNHEALTHY (503 Service Unavailable).",
         "simulated": True
     }), 200
 
@@ -64,9 +65,28 @@ def simulate_crash():
 def simulate_recover():
     if os.path.exists(CRASH_FLAG_FILE):
         os.remove(CRASH_FLAG_FILE)
+
+    run_ansible = request.args.get("ansible", "").lower() == "true" or request.form.get("ansible", "").lower() == "true"
+    ansible_output = None
+    
+    if run_ansible:
+        playbook_path = "/home/ob/devops-self-healing-project/ansible/playbooks/recover_flask.yml"
+        inventory_path = "/home/ob/devops-self-healing-project/ansible/inventory/hosts.ini"
+        if os.path.exists(playbook_path) and os.path.exists(inventory_path):
+            try:
+                res = subprocess.run(
+                    ["ansible-playbook", "-i", inventory_path, playbook_path],
+                    capture_output=True, text=True, timeout=30
+                )
+                ansible_output = (res.stdout[-300:] if res.stdout else res.stderr[-300:]).strip()
+            except Exception as e:
+                ansible_output = f"Ansible note: {str(e)}"
+
     return jsonify({
         "action": "simulate_recover",
         "status": "OK",
-        "message": "Ansible recovery executed! Service restored to healthy 200 OK state.",
+        "message": "Self-healing recovery completed! Backend restored to 200 OK.",
+        "ansible_executed": run_ansible,
+        "ansible_summary": ansible_output if ansible_output else "Process state flag cleared and /healthz restored to 200 OK.",
         "simulated": False
     }), 200

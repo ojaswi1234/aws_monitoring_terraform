@@ -83,7 +83,7 @@ body {{ background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFon
 <tr>
     <td rowspan="6" class="hostName" style="vertical-align: top; background: #f8fafc; border-right: 2px solid #cbd5e1;">
         <strong>app-server</strong><br>
-        <span style="font-size: 11px; color: #64748b;">10.0.1.60</span><br>
+        <span style="font-size: 11px; color: #64748b;">10.0.1.45 (Public: 98.84.41.102)</span><br>
         <div class="statusBGUP" style="display:inline-block; padding: 2px 8px; margin-top: 4px;">UP</div>
     </td>
     <td><strong>Flask Backend Health</strong></td>
@@ -138,7 +138,7 @@ body {{ background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFon
 <tr>
     <td rowspan="2" class="hostName" style="vertical-align: top; background: #f8fafc; border-right: 2px solid #cbd5e1;">
         <strong>monitor-server</strong><br>
-        <span style="font-size: 11px; color: #64748b;">10.0.1.50</span><br>
+        <span style="font-size: 11px; color: #64748b;">10.0.1.28 (Public: 44.223.101.208)</span><br>
         <div class="statusBGUP" style="display:inline-block; padding: 2px 8px; margin-top: 4px;">UP</div>
     </td>
     <td><strong>Nagios Core Daemon</strong></td>
@@ -202,14 +202,14 @@ body {{ background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFon
 </thead>
 <tbody>
 <tr>
-    <td class="hostName">app-server (10.0.1.60)</td>
+    <td class="hostName">app-server (10.0.1.45 / 98.84.41.102)</td>
     <td><span class="statusBGUP">UP</span></td>
     <td>{s['now']}</td>
     <td>0d 2h 25m</td>
     <td><code>PING OK - Packet loss = 0%, RTA = 0.28 ms</code></td>
 </tr>
 <tr>
-    <td class="hostName">monitor-server (10.0.1.50)</td>
+    <td class="hostName">monitor-server (10.0.1.28 / 44.223.101.208)</td>
     <td><span class="statusBGUP">UP</span></td>
     <td>{s['now']}</td>
     <td>0d 2h 25m</td>

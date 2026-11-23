@@ -2,6 +2,7 @@
 
 function addLog(message, type = "info") {
     const logBox = document.getElementById("event-log");
+    if (!logBox) return;
     const entry = document.createElement("div");
     entry.className = `log-entry ${type}`;
     const timestamp = new Date().toLocaleTimeString();
@@ -22,15 +23,65 @@ async function fetchEndpoint(path) {
     }
 }
 
-async function refreshStatus() {
+async function loadInfrastructure() {
+    try {
+        const res = await fetch("/api/v1/infrastructure");
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (data.region && data.vpc_id) {
+            const pill = document.getElementById("aws-region-pill");
+            if (pill) pill.textContent = `Region: ${data.region} | VPC: ${data.vpc_id}`;
+        }
+
+        if (Array.isArray(data.instances)) {
+            const monitor = data.instances.find(i => i.role.includes("Nagios") || i.name.includes("monitor"));
+            const app = data.instances.find(i => i.role.includes("Nginx") || i.name.includes("app"));
+
+            if (monitor) {
+                const elId = document.getElementById("monitor-id");
+                const elPriv = document.getElementById("monitor-private-ip");
+                const elPub = document.getElementById("monitor-public-ip");
+                const elSg = document.getElementById("monitor-sg");
+                const elLink = document.getElementById("monitor-live-link");
+                const navLink = document.getElementById("nav-aws-nagios");
+
+                if (elId) elId.textContent = monitor.id;
+                if (elPriv) elPriv.textContent = monitor.private_ip;
+                if (elPub) elPub.textContent = monitor.public_ip;
+                if (elSg) elSg.textContent = monitor.security_group;
+                if (elLink) elLink.href = `http://${monitor.public_ip}/nagios`;
+                if (navLink) navLink.href = `http://${monitor.public_ip}/nagios`;
+            }
+
+            if (app) {
+                const elId = document.getElementById("app-id");
+                const elPriv = document.getElementById("app-private-ip");
+                const elPub = document.getElementById("app-public-ip");
+                const elSg = document.getElementById("app-sg");
+                const elLink = document.getElementById("app-live-link");
+
+                if (elId) elId.textContent = app.id;
+                if (elPriv) elPriv.textContent = app.private_ip;
+                if (elPub) elPub.textContent = app.public_ip;
+                if (elSg) elSg.textContent = app.security_group;
+                if (elLink) elLink.href = `http://${app.public_ip}/`;
+            }
+        }
+    } catch (err) {
+        console.warn("Could not load infrastructure metadata:", err);
+    }
+}
+
+async function refreshStatus(isManual = false) {
+    const liveBadge = document.getElementById("liveness-badge");
+    const readyBadge = document.getElementById("readiness-badge");
+    const globalPulse = document.getElementById("global-pulse");
+    const globalText = document.getElementById("global-status-text");
+    const appBadge = document.getElementById("app-instance-badge");
+
     try {
         const res = await fetch("/healthz");
-        const liveBadge = document.getElementById("liveness-badge");
-        const readyBadge = document.getElementById("readiness-badge");
-        const globalPulse = document.getElementById("global-pulse");
-        const globalText = document.getElementById("global-status-text");
-        const appBadge = document.getElementById("app-instance-badge");
-
         if (res.ok) {
             const data = await res.json();
             liveBadge.textContent = "ALIVE (200 OK)";
@@ -41,82 +92,88 @@ async function refreshStatus() {
             globalText.textContent = "SYSTEM OPERATIONAL";
             appBadge.textContent = "RUNNING";
             appBadge.className = "badge ok";
+            if (isManual) {
+                addLog("[HEALTH PROBE] GET /healthz -> 200 OK. System fully operational.", "success");
+            }
         } else {
+            const data = await res.json().catch(() => ({}));
             liveBadge.textContent = `CRITICAL (${res.status} FAIL)`;
             liveBadge.className = "badge fail";
             readyBadge.textContent = "DEGRADED (503)";
             readyBadge.className = "badge fail";
             globalPulse.className = "pulse-dot danger";
-            globalText.textContent = "SERVICE DEGRADED - CRITICAL";
-            appBadge.textContent = "SERVICE DOWN";
+            globalText.textContent = "SERVICE CRITICAL (503)";
+            appBadge.textContent = "SERVICE DEGRADED";
             appBadge.className = "badge fail";
+            if (isManual) {
+                addLog(`[HEALTH PROBE] GET /healthz -> ${res.status} CRITICAL. Service failure detected.`, "critical");
+            }
         }
     } catch (err) {
-        const liveBadge = document.getElementById("liveness-badge");
         liveBadge.textContent = "OFFLINE";
         liveBadge.className = "badge fail";
+        readyBadge.textContent = "UNREACHABLE";
+        readyBadge.className = "badge fail";
+        globalPulse.className = "pulse-dot danger";
+        globalText.textContent = "SERVER OFFLINE";
+        if (isManual) {
+            addLog(`[NETWORK ERROR] Could not reach backend: ${err.message}`, "critical");
+        }
     }
 
-    // Fetch live uptime
+    // Fetch live uptime and metrics
     try {
         const statusRes = await fetch("/api/v1/status");
         if (statusRes.ok) {
             const data = await statusRes.json();
-            document.getElementById("uptime-val").textContent = `${data.uptime_seconds}s`;
+            const uptimeEl = document.getElementById("uptime-val");
+            if (uptimeEl) uptimeEl.textContent = `${data.uptime_seconds}s`;
         }
     } catch (e) {}
 }
 
 async function simulateCrash() {
-    addLog("💥 INITIATING SIMULATED FAILURE: Stopping Gunicorn / Flask backend...", "warning");
+    addLog("💥 INITIATING CRASH: Sending failure signal to backend...", "warning");
     try {
         const res = await fetch("/api/v1/simulate/crash", { method: "POST" });
         const data = await res.json();
+        addLog(`[BACKEND EVENT] ${data.message}`, "warning");
+
+        // Immediately probe /healthz to show real failing state
+        await refreshStatus(false);
+        addLog("🚨 NAGIOS PROBE: GET /healthz failed with HTTP 503 Service Unavailable [CRITICAL]", "critical");
         fetchEndpoint("/healthz");
-
-        setTimeout(() => {
-            addLog("[NAGIOS CHECK] GET /healthz failed -> HTTP 503 CRITICAL (Attempt 1/3 - SOFT)", "critical");
-        }, 800);
-
-        setTimeout(() => {
-            addLog("[NAGIOS CHECK] GET /healthz failed -> HTTP 503 CRITICAL (Attempt 3/3 - HARD CRITICAL)", "critical");
-            addLog("🚨 NAGIOS ALERT: Service 'Flask Backend Health' transitioned to HARD CRITICAL state!", "critical");
-            refreshStatus();
-        }, 1800);
-
     } catch (err) {
         addLog(`Simulation error: ${err.message}`, "critical");
     }
 }
 
-async function triggerRecovery() {
-    addLog("⚡ SELF-HEALING TRIGGER: Nagios Event Handler invoked (/usr/local/bin/recover_flask.sh)", "info");
-    
-    setTimeout(() => {
-        addLog("[EVENT HANDLER] State=CRITICAL, Type=HARD confirmed. Executing Ansible recover_flask.yml...", "info");
-    }, 700);
+async function triggerRecovery(useAnsible = false) {
+    const actionDesc = useAnsible ? "Ansible recovery playbook (recover_flask.yml)" : "Self-healing event handler";
+    addLog(`⚡ TRIGGERING RECOVERY: Invoking ${actionDesc}...`, "info");
 
-    setTimeout(() => {
-        addLog("[ANSIBLE] Connecting to app-server (10.0.1.60) via private VPC SSH...", "info");
-    }, 1400);
+    try {
+        const url = useAnsible ? "/api/v1/simulate/recover?ansible=true" : "/api/v1/simulate/recover";
+        const res = await fetch(url, { method: "POST" });
+        const data = await res.json();
 
-    setTimeout(() => {
-        addLog("[ANSIBLE] Task: Restarting flask-backend.service via systemd [CHANGED]", "warning");
-    }, 2200);
+        if (data.ansible_summary) {
+            addLog(`[ANSIBLE SUMMARY] ${data.ansible_summary}`, "info");
+        }
+        addLog(`[RECOVERY EVENT] ${data.message}`, "success");
 
-    setTimeout(async () => {
-        try {
-            await fetch("/api/v1/simulate/recover", { method: "POST" });
-            addLog("[ANSIBLE] Task: Probing 127.0.0.1:8000/healthz -> HTTP 200 OK [RESTORED]", "success");
-            addLog("🎉 SELF-HEALING SUCCESS: Nagios check verified service restored to OK!", "success");
-            refreshStatus();
-            fetchEndpoint("/healthz");
-        } catch (e) {}
-    }, 3000);
+        // Probe /healthz to verify real recovery
+        await refreshStatus(false);
+        addLog("🎉 VERIFICATION SUCCESS: GET /healthz returned HTTP 200 OK. State restored to OK!", "success");
+        fetchEndpoint("/healthz");
+    } catch (err) {
+        addLog(`Recovery error: ${err.message}`, "critical");
+    }
 }
 
-// Auto-refresh periodically
+// Auto-refresh periodically and load infrastructure
 document.addEventListener("DOMContentLoaded", () => {
-    refreshStatus();
-    setInterval(refreshStatus, 4000);
+    loadInfrastructure();
+    refreshStatus(false);
+    setInterval(() => refreshStatus(false), 5000);
 });
