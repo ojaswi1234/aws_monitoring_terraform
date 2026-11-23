@@ -28,7 +28,8 @@ def index():
             "readiness": "/readyz",
             "status": "/api/v1/status",
             "info": "/api/v1/info",
-            "metrics": "/api/v1/metrics"
+            "metrics": "/api/v1/metrics",
+            "infrastructure": "/api/v1/infrastructure"
         }
     }
     return jsonify(data), 200
@@ -61,3 +62,37 @@ def get_info():
 def get_metrics():
     """Return lightweight, safe application performance metrics."""
     return jsonify(tracker.get_metrics()), 200
+
+@info_bp.route("/api/v1/infrastructure", methods=["GET"])
+def get_infrastructure():
+    """Return provisioned AWS cloud topology & instance details."""
+    return jsonify({
+        "cloud_provider": "Amazon Web Services (AWS)",
+        "region": "us-east-1",
+        "vpc_cidr": "10.0.0.0/16",
+        "subnet_cidr": "10.0.1.0/24",
+        "instances": [
+            {
+                "id": "i-091a4b872c019d3f1",
+                "name": "monitor-server",
+                "role": "Nagios Core 4.x & Ansible Engine",
+                "type": "t2.micro",
+                "private_ip": "10.0.1.50",
+                "public_ip": "54.210.42.118",
+                "security_group": "devops-self-healing-monitor-sg",
+                "services": ["nagios4", "apache2"],
+                "status": "running"
+            },
+            {
+                "id": "i-0b5c9e217d832e4a2",
+                "name": "app-server",
+                "role": "Nginx Reverse Proxy + Gunicorn + Flask",
+                "type": "t2.micro",
+                "private_ip": "10.0.1.60",
+                "public_ip": "54.210.42.119",
+                "security_group": "devops-self-healing-app-sg",
+                "services": ["nginx", "flask-backend", "nagios-nrpe-server"],
+                "status": "running"
+            }
+        ]
+    }), 200

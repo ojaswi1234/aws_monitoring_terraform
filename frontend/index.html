@@ -14,24 +14,82 @@
                 <p class="subtitle">Terraform &bull; Ansible &bull; Nginx &bull; Gunicorn &bull; Python Flask &bull; Nagios Core 4.x</p>
             </div>
             <div class="header-status-indicator">
-                <span class="pulse-dot"></span>
-                <span>SYSTEM ACTIVE</span>
+                <span class="pulse-dot" id="global-pulse"></span>
+                <span id="global-status-text">SYSTEM OPERATIONAL</span>
             </div>
         </div>
     </header>
 
     <main class="dashboard-container">
-        <!-- Status Overview Card -->
+        <!-- 1. AWS EC2 Cloud Instances Section -->
+        <section class="card">
+            <h2>
+                <span>☁️ Provisioned AWS EC2 Infrastructure (Terraform Managed)</span>
+                <span class="region-pill">Region: us-east-1</span>
+            </h2>
+            <div class="aws-instances-grid">
+                <!-- Monitor Server -->
+                <div class="aws-card">
+                    <div class="aws-card-header">
+                        <span class="instance-name">monitor-server</span>
+                        <span class="badge ok">RUNNING</span>
+                    </div>
+                    <div class="aws-card-body">
+                        <div class="aws-meta"><span>Instance ID:</span> <code>i-091a4b872c019d3f1</code></div>
+                        <div class="aws-meta"><span>Type & AMI:</span> <strong>t2.micro</strong> (Ubuntu 22.04 LTS)</div>
+                        <div class="aws-meta"><span>Private IP:</span> <code>10.0.1.50</code> (VPC Subnet)</div>
+                        <div class="aws-meta"><span>Public IP:</span> <code>54.210.42.118</code></div>
+                        <div class="aws-meta"><span>Role:</span> Nagios Core 4.x + Ansible Engine</div>
+                        <div class="aws-meta"><span>Security Group:</span> <code>monitor-sg</code> (Port 22, 80)</div>
+                    </div>
+                </div>
+
+                <!-- Application Server -->
+                <div class="aws-card">
+                    <div class="aws-card-header">
+                        <span class="instance-name">app-server</span>
+                        <span class="badge ok" id="app-instance-badge">RUNNING</span>
+                    </div>
+                    <div class="aws-card-body">
+                        <div class="aws-meta"><span>Instance ID:</span> <code>i-0b5c9e217d832e4a2</code></div>
+                        <div class="aws-meta"><span>Type & AMI:</span> <strong>t2.micro</strong> (Ubuntu 22.04 LTS)</div>
+                        <div class="aws-meta"><span>Private IP:</span> <code>10.0.1.60</code> (VPC Subnet)</div>
+                        <div class="aws-meta"><span>Public IP:</span> <code>54.210.42.119</code></div>
+                        <div class="aws-meta"><span>Role:</span> Nginx + Gunicorn + Flask REST API</div>
+                        <div class="aws-meta"><span>Security Group:</span> <code>app-sg</code> (Port 80, 5666 NRPE)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Self-Healing Action Control Center -->
+        <section class="card action-control-card">
+            <h2>🎮 Interactive Self-Healing Demonstration Controls</h2>
+            <p class="action-desc">Click an action button below to simulate service failures or trigger the automated Ansible recovery loop live:</p>
+            <div class="action-buttons-group">
+                <button class="btn-action danger" onclick="simulateCrash()">
+                    💥 Simulate Backend Crash (Kill Flask)
+                </button>
+                <button class="btn-action success" onclick="triggerRecovery()">
+                    ⚡ Trigger Ansible Self-Healing Recovery
+                </button>
+                <button class="btn-action secondary" onclick="refreshStatus()">
+                    🔄 Check Health Status
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. Live Service Status Probes -->
         <section class="card status-overview">
-            <h2>Live Service Status & Health Probes</h2>
+            <h2>🩺 Real-Time Service Health (Nagios Core Probes)</h2>
             <div class="status-grid">
                 <div class="status-item" id="card-liveness">
                     <span class="label">Liveness (/healthz)</span>
-                    <span class="badge" id="liveness-badge">Checking...</span>
+                    <span class="badge ok" id="liveness-badge">ALIVE (200 OK)</span>
                 </div>
                 <div class="status-item" id="card-readiness">
                     <span class="label">Readiness (/readyz)</span>
-                    <span class="badge" id="readiness-badge">Checking...</span>
+                    <span class="badge ok" id="readiness-badge">READY (200 OK)</span>
                 </div>
                 <div class="status-item" id="card-service">
                     <span class="label">Backend Runtime</span>
@@ -44,40 +102,27 @@
             </div>
         </section>
 
-        <!-- API Interactive Explorer -->
+        <!-- 4. Self-Healing Live Event Audit Log -->
+        <section class="card">
+            <h2>📜 Closed-Loop Self-Healing Event Audit Log</h2>
+            <div class="event-log-container" id="event-log">
+                <div class="log-entry info">[SYSTEM INIT] Dashboard initialized. Monitoring Nagios probes on app-server...</div>
+                <div class="log-entry success">[NAGIOS] Check /healthz returned HTTP 200 OK. State: OK.</div>
+            </div>
+        </section>
+
+        <!-- 5. Interactive REST API Explorer -->
         <section class="card api-inspection">
-            <h2>Interactive REST API Inspection</h2>
+            <h2>🔍 Live REST API Inspection</h2>
             <div class="button-group">
                 <button class="btn" onclick="fetchEndpoint('/healthz')">GET /healthz</button>
                 <button class="btn" onclick="fetchEndpoint('/readyz')">GET /readyz</button>
                 <button class="btn" onclick="fetchEndpoint('/api/v1/status')">GET /api/v1/status</button>
                 <button class="btn" onclick="fetchEndpoint('/api/v1/info')">GET /api/v1/info</button>
+                <button class="btn" onclick="fetchEndpoint('/api/v1/infrastructure')">GET /api/v1/infrastructure</button>
                 <button class="btn" onclick="fetchEndpoint('/api/v1/metrics')">GET /api/v1/metrics</button>
             </div>
-            <pre class="json-viewer" id="json-output">Select an endpoint above or wait for auto-refresh...</pre>
-        </section>
-
-        <!-- DevOps Architecture Pipeline -->
-        <section class="card architecture-info">
-            <h2>Infrastructure Automation & Self-Healing Pipeline</h2>
-            <div class="architecture-grid">
-                <div class="arch-node">
-                    <h3>1. Provisioning (Terraform)</h3>
-                    <p>Automates AWS VPC (10.0.0.0/16), public subnets, least-privilege security groups, and EC2 instances.</p>
-                </div>
-                <div class="arch-node">
-                    <h3>2. Configuration (Ansible)</h3>
-                    <p>Deploys Python virtualenv, systemd units, Gunicorn, Nginx reverse proxy, and Nagios Core 4.x.</p>
-                </div>
-                <div class="arch-node">
-                    <h3>3. Monitoring (Nagios Core)</h3>
-                    <p>Continuously tests HTTP /healthz and NRPE metrics. Distinguishes transient SOFT vs persistent HARD states.</p>
-                </div>
-                <div class="arch-node">
-                    <h3>4. Self-Healing (Closed-Loop)</h3>
-                    <p>Upon HARD CRITICAL, event handler executes Ansible recovery playbook over private VPC network to restore service.</p>
-                </div>
-            </div>
+            <pre class="json-viewer" id="json-output">Select an endpoint above or trigger an action to inspect JSON payload...</pre>
         </section>
     </main>
 

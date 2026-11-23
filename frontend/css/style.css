@@ -34,14 +34,14 @@ header {
     background-color: rgba(10, 15, 29, 0.85);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-color);
-    padding: 1.5rem 1rem;
+    padding: 1.25rem 1rem;
     position: sticky;
     top: 0;
     z-index: 100;
 }
 
 .header-container {
-    max-width: 1080px;
+    max-width: 1100px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -51,7 +51,7 @@ header {
 }
 
 .brand-title {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
     font-weight: 700;
     letter-spacing: -0.02em;
     background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
@@ -69,6 +69,7 @@ header {
     border: 1px solid rgba(16, 185, 129, 0.3);
     padding: 0.35rem 0.75rem;
     border-radius: 9999px;
+    font-weight: 600;
 }
 
 .pulse-dot {
@@ -78,6 +79,11 @@ header {
     border-radius: 50%;
     box-shadow: 0 0 8px var(--accent-green);
     animation: pulse 2s infinite;
+}
+
+.pulse-dot.danger {
+    background-color: var(--accent-red);
+    box-shadow: 0 0 8px var(--accent-red);
 }
 
 @keyframes pulse {
@@ -93,9 +99,9 @@ header {
 }
 
 .dashboard-container {
-    max-width: 1080px;
-    width: 92%;
-    margin: 2rem auto;
+    max-width: 1100px;
+    width: 94%;
+    margin: 1.75rem auto;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -106,67 +112,214 @@ header {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1.4rem;
     box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
-    transition: border-color 0.2s ease;
-}
-
-.card:hover {
-    border-color: var(--border-highlight);
 }
 
 .card h2 {
     font-size: 1.15rem;
     font-weight: 600;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.15rem;
     color: #e2e8f0;
     display: flex;
+    justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
     gap: 0.5rem;
 }
 
+.region-pill {
+    font-size: 0.75rem;
+    background: #1e293b;
+    border: 1px solid var(--border-highlight);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    color: var(--accent-blue);
+    font-weight: normal;
+}
+
+/* AWS Instances Grid */
+.aws-instances-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1rem;
+}
+
+.aws-card {
+    background: #0b1120;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.1rem;
+}
+
+.aws-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.8rem;
+}
+
+.instance-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    font-family: monospace;
+}
+
+.aws-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.aws-meta {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+}
+
+.aws-meta code {
+    color: #38bdf8;
+    background: #131b2e;
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+/* Action Controls Group */
+.action-control-card {
+    background: linear-gradient(180deg, #162036 0%, #111827 100%);
+    border: 1px solid #2d3b55;
+}
+
+.action-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.action-buttons-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    border: none;
+}
+
+.btn-action.danger {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
+}
+
+.btn-action.danger:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(220, 38, 38, 0.45);
+}
+
+.btn-action.success {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: white;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.btn-action.success:hover {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
+}
+
+.btn-action.secondary {
+    background: #1e293b;
+    color: #e2e8f0;
+    border: 1px solid var(--border-highlight);
+}
+
+.btn-action.secondary:hover {
+    background: #334155;
+}
+
+/* Event Log Window */
+.event-log-container {
+    background: #080c16;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 0.82rem;
+    max-height: 180px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.log-entry {
+    line-height: 1.4;
+}
+
+.log-entry.info { color: #94a3b8; }
+.log-entry.success { color: #34d399; }
+.log-entry.critical { color: #f87171; font-weight: bold; }
+.log-entry.warning { color: #fbbf24; }
+
+/* Status Cards */
 .status-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
     gap: 1rem;
 }
 
 .status-item {
     background-color: #0b1120;
-    padding: 1.2rem;
+    padding: 1.1rem;
     border-radius: 8px;
     border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 95px;
+    min-height: 90px;
 }
 
 .status-item .label {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 500;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
 .status-item .value {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-top: 0.35rem;
+    margin-top: 0.3rem;
 }
 
 .badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
     padding: 0.25rem 0.65rem;
     border-radius: 6px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
     width: fit-content;
-    margin-top: 0.4rem;
+    margin-top: 0.35rem;
 }
 
 .badge.ok {
@@ -181,27 +334,21 @@ header {
     border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
-.badge.warn {
-    background-color: rgba(245, 158, 11, 0.15);
-    color: var(--accent-amber);
-    border: 1px solid rgba(245, 158, 11, 0.4);
-}
-
 .button-group {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
 }
 
 .btn {
     background-color: #1e293b;
     color: #e2e8f0;
     border: 1px solid var(--border-highlight);
-    padding: 0.55rem 1rem;
+    padding: 0.5rem 0.85rem;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 500;
     transition: all 0.2s;
     font-family: inherit;
@@ -211,47 +358,20 @@ header {
     background-color: #38bdf8;
     color: #0f172a;
     border-color: #38bdf8;
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
 }
 
 .json-viewer {
     background-color: #080c16;
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 1.2rem;
-    font-family: "Consolas", "Monaco", "Courier New", monospace;
-    font-size: 0.88rem;
+    padding: 1.1rem;
+    font-family: "Consolas", monospace;
+    font-size: 0.85rem;
     color: #38bdf8;
     overflow-x: auto;
     white-space: pre-wrap;
-    max-height: 280px;
-    line-height: 1.5;
-}
-
-.architecture-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem;
-    margin-top: 0.5rem;
-}
-
-.arch-node {
-    background: #0b1120;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1rem;
-}
-
-.arch-node h3 {
-    font-size: 0.95rem;
-    color: var(--accent-blue);
-    margin-bottom: 0.5rem;
-}
-
-.arch-node p {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    line-height: 1.5;
+    max-height: 250px;
+    line-height: 1.45;
 }
 
 footer {
@@ -261,5 +381,4 @@ footer {
     color: var(--text-muted);
     font-size: 0.8rem;
     border-top: 1px solid var(--border-color);
-    margin-top: 2rem;
 }
