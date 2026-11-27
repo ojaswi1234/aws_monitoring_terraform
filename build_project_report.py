@@ -527,26 +527,26 @@ def build_pdf():
     story.append(PageBreak())
 
     # =========================================================================
-    # PAGE 9: CHAPTER 5: IMPLEMENTATION (Screenshots 1 & 2 - Natural 1.66 Ratio)
+    # PAGE 9: CHAPTER 5: IMPLEMENTATION (Authentic Nagios Core 4.4.6 Screenshots)
     # =========================================================================
     story.append(Paragraph("5.3 Project Screenshots &amp; Experimental Verification", style_h2))
-    story.append(Paragraph("The system was extensively validated under live test conditions. Real operational screenshots are presented below:", style_body))
+    story.append(Paragraph("The system was extensively validated under live operational conditions. Authentic Nagios Core 4.4.6 monitoring dashboard pages captured from the live deployment environment are presented below:", style_body))
     story.append(Spacer(1, 4))
 
-    # Screenshot 1: Web Console (Natural 1.66 Aspect Ratio: 460 x 276)
-    s1_path = os.path.join(ASSETS_DIR, "screenshot1_web_console.png")
-    img_s1 = get_proportional_image(s1_path, max_width=460)
+    # Screenshot 1: Authentic Nagios Core Service Status Details (n1.png)
+    s1_path = os.path.join(ASSETS_DIR, "n1.png")
+    img_s1 = get_proportional_image(s1_path, max_width=470)
     if img_s1:
         story.append(img_s1)
-        story.append(Paragraph("<b>Figure 5.1:</b> Live DevOps Infrastructure &amp; Self-Healing Web Management Console", style_caption))
+        story.append(Paragraph("<b>Figure 5.1:</b> Authentic Nagios Core 4.4.6 Service Status Details Console (Active Health Telemetry &amp; Fault Detection)", style_caption))
     story.append(Spacer(1, 8))
 
-    # Screenshot 2: Nagios Core Dashboard (Natural 1.66 Aspect Ratio: 460 x 276)
-    s2_path = os.path.join(ASSETS_DIR, "screenshot2_nagios_core.png")
-    img_s2 = get_proportional_image(s2_path, max_width=460)
+    # Screenshot 2: Authentic Nagios Core Host Status Details (n2.png)
+    s2_path = os.path.join(ASSETS_DIR, "n2.png")
+    img_s2 = get_proportional_image(s2_path, max_width=470)
     if img_s2:
         story.append(img_s2)
-        story.append(Paragraph("<b>Figure 5.2:</b> Nagios Core 4.x Tactical Monitoring Console and Host/Service Status Grid", style_caption))
+        story.append(Paragraph("<b>Figure 5.2:</b> Authentic Nagios Core 4.4.6 Host Status Details Console (Host Availability &amp; State Grid)", style_caption))
 
     story.append(PageBreak())
 
