@@ -212,6 +212,8 @@ def build_pdf():
     story.append(Paragraph("Phagwara, Punjab, India", style_cover_sub))
     story.append(Paragraph("Academic Session: <b>2026–2027</b>", style_cover_sub))
     story.append(Paragraph("Submission Date: <b>27/11/2026</b>", style_cover_sub))
+    story.append(Spacer(1, 8))
+    story.append(Paragraph("<b>GitHub Repository:</b> <font color='#1d4ed8'><u>https://github.com/ojaswi1234/aws_monitoring_terraform.git</u></font>", style_cover_sub))
 
     story.append(PageBreak())
 
@@ -268,7 +270,7 @@ def build_pdf():
         [Paragraph("Chapter 3: Tools and Requirements", ParagraphStyle('TOCItem', fontName='Helvetica', fontSize=10.5)), Paragraph("6", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10.5, alignment=2))],
         [Paragraph("Chapter 4: System Design", ParagraphStyle('TOCItem', fontName='Helvetica', fontSize=10.5)), Paragraph("7", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10.5, alignment=2))],
         [Paragraph("Chapter 5: Implementation", ParagraphStyle('TOCItem', fontName='Helvetica', fontSize=10.5)), Paragraph("8", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10.5, alignment=2))],
-        [Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;5.1 Setup &amp; Cloud Provisioning", ParagraphStyle('TOCItemSub', fontName='Helvetica', fontSize=10, textColor=colors.HexColor("#475569"))), Paragraph("8", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10, alignment=2, textColor=colors.HexColor("#475569")))],
+        [Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;5.1 Setup &amp; Repository", ParagraphStyle('TOCItemSub', fontName='Helvetica', fontSize=10, textColor=colors.HexColor("#475569"))), Paragraph("8", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10, alignment=2, textColor=colors.HexColor("#475569")))],
         [Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;5.2 Steps / Commands / Implementation Code", ParagraphStyle('TOCItemSub', fontName='Helvetica', fontSize=10, textColor=colors.HexColor("#475569"))), Paragraph("8", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10, alignment=2, textColor=colors.HexColor("#475569")))],
         [Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;5.3 Project Screenshots &amp; Experimental Verification", ParagraphStyle('TOCItemSub', fontName='Helvetica', fontSize=10, textColor=colors.HexColor("#475569"))), Paragraph("9", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10, alignment=2, textColor=colors.HexColor("#475569")))],
         [Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;5.4 Quantitative Benchmarks &amp; MTTR Evaluation", ParagraphStyle('TOCItemSub', fontName='Helvetica', fontSize=10, textColor=colors.HexColor("#475569"))), Paragraph("11", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10, alignment=2, textColor=colors.HexColor("#475569")))],
@@ -452,9 +454,12 @@ def build_pdf():
     # =========================================================================
     story.append(Paragraph("CHAPTER 5: IMPLEMENTATION", style_h1))
 
-    story.append(Paragraph("5.1 Setup", style_h2))
+    story.append(Paragraph("5.1 Setup &amp; Repository", style_h2))
     p51 = (
-        "The project setup is completely automated. Cloud credentials are authenticated via the AWS CLI, and Terraform initialises "
+        "The project setup is completely automated. All infrastructure definitions, Ansible configuration roles, "
+        "monitoring check definitions, and self-healing scripts are version-controlled in the public GitHub repository: "
+        "<font color='#1d4ed8'><u>https://github.com/ojaswi1234/aws_monitoring_terraform.git</u></font>. "
+        "Cloud credentials are authenticated via the AWS CLI, and Terraform initialises "
         "the environment with automated state management. Upon execution of <font face='Courier'>terraform apply</font>, dynamic instance attributes "
         "(public IPs, private IPs, VPC identifiers) are extracted directly into an Ansible inventory file (<font face='Courier'>hosts.ini</font>) via "
         "<font face='Courier'>scripts/generate_inventory.sh</font>. Ansible playbooks (<font face='Courier'>site.yml</font>) then establish SSH connectivity "
@@ -625,6 +630,27 @@ def build_pdf():
     story.append(Paragraph("REFERENCES", style_h1))
     story.append(Spacer(1, 8))
 
+    style_ref = ParagraphStyle(
+        'ReportRef',
+        fontName='Times-Roman',
+        fontSize=9.5,
+        leading=13.5,
+        alignment=0,
+        textColor=colors.HexColor("#1e293b"),
+        spaceAfter=3
+    )
+
+    style_chk = ParagraphStyle(
+        'ReportChk',
+        fontName='Times-Roman',
+        fontSize=10,
+        leading=14,
+        alignment=0,
+        leftIndent=12,
+        textColor=colors.HexColor("#1e293b"),
+        spaceAfter=3
+    )
+
     refs = [
         "1. HashiCorp, “Terraform: Declarative Infrastructure as Code,” HashiCorp Documentation, 2024. [Online]. Available: https://www.terraform.io/docs.",
         "2. Red Hat, “Ansible Community Documentation: Automated Configuration Management,” Red Hat Inc., 2024. [Online]. Available: https://docs.ansible.com/.",
@@ -633,29 +659,30 @@ def build_pdf():
         "5. Pallets Projects, “Flask Documentation (Version 3.0.x): Web Development at Scale,” Pallets, 2024. [Online]. Available: https://flask.palletsprojects.com/.",
         "6. B. Chesneau, “Gunicorn: Python WSGI HTTP Server for UNIX,” Gunicorn Development Team, 2024. [Online]. Available: https://gunicorn.org/.",
         "7. I. Sysoev, “Nginx HTTP Server and Reverse Proxy Reference Architecture,” F5 Inc., 2024. [Online]. Available: https://nginx.org/en/docs/.",
-        "8. B. Beyer, C. Jones, J. Petoff, and N. R. Murphy, <i>Site Reliability Engineering: How Google Runs Production Systems</i>, O'Reilly Media, 2016."
+        "8. B. Beyer, C. Jones, J. Petoff, and N. R. Murphy, <i>Site Reliability Engineering: How Google Runs Production Systems</i>, O'Reilly Media, 2016.",
+        "9. O. Bhardwaj, “Automated DevOps Infrastructure &amp; Self-Healing System,” GitHub Repository, 2026. [Online]. Available: https://github.com/ojaswi1234/aws_monitoring_terraform.git."
     ]
 
     for r in refs:
-        story.append(Paragraph(r, style_body))
-        story.append(Spacer(1, 4))
+        story.append(Paragraph(r, style_ref))
 
-    story.append(Spacer(1, 15))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#cbd5e1"), spaceAfter=14))
+    story.append(Spacer(1, 8))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#cbd5e1"), spaceAfter=10))
 
-    chk_title = Paragraph("<b>Submission Checklist:</b>", ParagraphStyle('ChkTitle', fontName='Times-Bold', fontSize=12, textColor=colors.black))
+    chk_title = Paragraph("<b>Submission Checklist:</b>", ParagraphStyle('ChkTitle', fontName='Times-Bold', fontSize=11.5, textColor=colors.black))
     story.append(chk_title)
-    story.append(Spacer(1, 6))
+    story.append(Spacer(1, 4))
 
     chk_items = [
         "✔ <b>Title &amp; Student Identifiers:</b> Ojaswi Bhardwaj (Reg: 12319444, Roll: 55, Sec: K302316, Sem: 7, Faculty: Rakesh Gaganeja) verified.",
         "✔ <b>Official LPU Format:</b> Cover page, Abstract, Table of Contents, Chapters 1–5, References, and footers replicated.",
+        "✔ <b>GitHub Repository &amp; Code:</b> Complete codebase, playbooks, and docs hosted at https://github.com/ojaswi1234/aws_monitoring_terraform.git.",
         "✔ <b>Diagrams &amp; Visuals:</b> High-resolution system architecture diagram and 4 labeled operational screenshots included.",
         "✔ <b>Source Code &amp; Benchmarks:</b> Key Terraform, Ansible, and Nagios implementation snippets and quantitative MTTR metrics provided.",
         "✔ <b>Page Numbering:</b> Continuous sequential pagination cross-referenced with Table of Contents."
     ]
     for ci in chk_items:
-        story.append(Paragraph(ci, style_body))
+        story.append(Paragraph(ci, style_chk))
 
     # Build the document
     doc.build(story, canvasmaker=NumberedCanvas)

@@ -1,5 +1,13 @@
 # Automated DevOps Infrastructure & Self-Healing System
 
+[![GitHub Repository](https://img.shields.io/badge/GitHub-aws__monitoring__terraform-blue?logo=github)](https://github.com/ojaswi1234/aws_monitoring_terraform.git)
+[![Course](https://img.shields.io/badge/Course-INT333%20DevOps-green)](#)
+[![Institution](https://img.shields.io/badge/LPU-Lovely%20Professional%20University-orange)](#)
+
+> **Repository URL:** [https://github.com/ojaswi1234/aws_monitoring_terraform.git](https://github.com/ojaswi1234/aws_monitoring_terraform.git)  
+> **Student:** Ojaswi Bhardwaj (Reg: 12319444 | Roll: 55 | Sec: K302316 | Sem: 7)  
+> **Faculty Guide:** Rakesh Gaganeja, Department of CSE, Lovely Professional University  
+
 A production-style DevOps implementation combining Infrastructure as Code (Terraform), Configuration Management (Ansible), a Python Flask REST backend behind Nginx and Gunicorn, continuous monitoring with Nagios Core, and automated closed-loop self-healing via event handlers.
 
 ---
