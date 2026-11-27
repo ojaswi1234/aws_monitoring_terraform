@@ -62,6 +62,8 @@ inventory/hosts.ini
 *.pid
 recovery.log
 .systemd_service.status
+.visualizer/
+template_format.pdf
 
 # OS & Editor generated files
 .DS_Store
