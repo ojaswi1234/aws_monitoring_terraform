@@ -274,7 +274,7 @@ def build_pdf():
         [Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;5.2 Steps / Commands / Implementation Code", ParagraphStyle('TOCItemSub', fontName='Helvetica', fontSize=10, textColor=colors.HexColor("#475569"))), Paragraph("8", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10, alignment=2, textColor=colors.HexColor("#475569")))],
         [Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;5.3 Project Screenshots &amp; Experimental Verification", ParagraphStyle('TOCItemSub', fontName='Helvetica', fontSize=10, textColor=colors.HexColor("#475569"))), Paragraph("9", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10, alignment=2, textColor=colors.HexColor("#475569")))],
         [Paragraph("&nbsp;&nbsp;&nbsp;&nbsp;5.4 Quantitative Benchmarks &amp; MTTR Evaluation", ParagraphStyle('TOCItemSub', fontName='Helvetica', fontSize=10, textColor=colors.HexColor("#475569"))), Paragraph("11", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10, alignment=2, textColor=colors.HexColor("#475569")))],
-        [Paragraph("References &amp; Submission Checklist", ParagraphStyle('TOCItem', fontName='Helvetica', fontSize=10.5)), Paragraph("12", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10.5, alignment=2))]
+        [Paragraph("References", ParagraphStyle('TOCItem', fontName='Helvetica', fontSize=10.5)), Paragraph("12", ParagraphStyle('TOCPg', fontName='Helvetica', fontSize=10.5, alignment=2))]
     ]
 
     toc_table = Table(toc_data, colWidths=[380, 107])
@@ -527,57 +527,65 @@ def build_pdf():
     story.append(PageBreak())
 
     # =========================================================================
-    # PAGE 9: CHAPTER 5: IMPLEMENTATION (Authentic Nagios Core 4.4.6 Screenshots)
+    # PAGE 9: CHAPTER 5: IMPLEMENTATION (Figures 5.1 & 5.2: Website & Nagios Service Status)
     # =========================================================================
     story.append(Paragraph("5.3 Project Screenshots &amp; Experimental Verification", style_h2))
-    story.append(Paragraph("The system was extensively validated under live operational conditions. Authentic Nagios Core 4.4.6 monitoring dashboard pages captured from the live deployment environment are presented below:", style_body))
+    story.append(Paragraph("The system was extensively validated under live operational conditions across all tiers. Real operational screenshots illustrating the web application console, authentic Nagios Core 4.4.6 monitoring telemetry, automated self-healing execution, and cloud infrastructure provisioning are presented below:", style_body))
     story.append(Spacer(1, 4))
 
-    # Screenshot 1: Authentic Nagios Core Service Status Details (n1.png)
-    s1_path = os.path.join(ASSETS_DIR, "n1.png")
-    img_s1 = get_proportional_image(s1_path, max_width=470)
+    # Figure 5.1: Web Management Console
+    s1_path = os.path.join(ASSETS_DIR, "screenshot1_web_console.png")
+    img_s1 = get_proportional_image(s1_path, max_width=450)
     if img_s1:
         story.append(img_s1)
-        story.append(Paragraph("<b>Figure 5.1:</b> Authentic Nagios Core 4.4.6 Service Status Details Console (Active Health Telemetry &amp; Fault Detection)", style_caption))
+        story.append(Paragraph("<b>Figure 5.1:</b> Live DevOps Infrastructure &amp; Self-Healing Web Management Console (EC2 Status, Live Probes, and Controls)", style_caption))
     story.append(Spacer(1, 8))
 
-    # Screenshot 2: Authentic Nagios Core Host Status Details (n2.png)
-    s2_path = os.path.join(ASSETS_DIR, "n2.png")
-    img_s2 = get_proportional_image(s2_path, max_width=470)
+    # Figure 5.2: Authentic Nagios Core Service Status Details (n1.png)
+    s2_path = os.path.join(ASSETS_DIR, "n1.png")
+    img_s2 = get_proportional_image(s2_path, max_width=450)
     if img_s2:
         story.append(img_s2)
-        story.append(Paragraph("<b>Figure 5.2:</b> Authentic Nagios Core 4.4.6 Host Status Details Console (Host Availability &amp; State Grid)", style_caption))
+        story.append(Paragraph("<b>Figure 5.2:</b> Authentic Nagios Core 4.4.6 Service Status Details Console (Active Health Telemetry &amp; Fault Detection)", style_caption))
 
     story.append(PageBreak())
 
     # =========================================================================
-    # PAGE 10: CHAPTER 5: IMPLEMENTATION (Screenshots 3 & 4 - Natural 1.76 Ratio)
+    # PAGE 10: CHAPTER 5: IMPLEMENTATION (Figures 5.3 & 5.4: Nagios Host Status & Recovery Trace)
     # =========================================================================
     story.append(Paragraph("5.3 Project Screenshots &amp; Experimental Verification (Contd.)", style_h2))
     story.append(Spacer(1, 4))
 
-    # Screenshot 3: Recovery Execution (Natural 1.76 Aspect Ratio: 460 x 260)
-    s3_path = os.path.join(ASSETS_DIR, "screenshot3_self_healing_recovery.png")
-    img_s3 = get_proportional_image(s3_path, max_width=460)
+    # Figure 5.3: Authentic Nagios Core Host Status Details (n2.png)
+    s3_path = os.path.join(ASSETS_DIR, "n2.png")
+    img_s3 = get_proportional_image(s3_path, max_width=450)
     if img_s3:
         story.append(img_s3)
-        story.append(Paragraph("<b>Figure 5.3:</b> Automated Remediation Execution Log (<font face='Courier'>/var/log/nagios_recovery.log</font>) and Ansible Playbook Trace", style_caption))
+        story.append(Paragraph("<b>Figure 5.3:</b> Authentic Nagios Core 4.4.6 Host Status Details Console (Host Availability &amp; State Grid)", style_caption))
     story.append(Spacer(1, 8))
 
-    # Screenshot 4: Terraform Output (Natural 1.76 Aspect Ratio: 460 x 260)
-    s4_path = os.path.join(ASSETS_DIR, "screenshot4_terraform_aws.png")
-    img_s4 = get_proportional_image(s4_path, max_width=460)
+    # Figure 5.4: Recovery Playbook Execution Trace
+    s4_path = os.path.join(ASSETS_DIR, "screenshot3_self_healing_recovery.png")
+    img_s4 = get_proportional_image(s4_path, max_width=450)
     if img_s4:
         story.append(img_s4)
-        story.append(Paragraph("<b>Figure 5.4:</b> Terraform Automated Infrastructure Provisioning Output in AWS Region us-east-1", style_caption))
+        story.append(Paragraph("<b>Figure 5.4:</b> Automated Remediation Execution Log (<font face='Courier'>/var/log/nagios_recovery.log</font>) and Ansible Playbook Trace", style_caption))
 
     story.append(PageBreak())
 
     # =========================================================================
-    # PAGE 11: 5.4 QUANTITATIVE BENCHMARKS & MTTR EVALUATION
+    # PAGE 11: CHAPTER 5: Figure 5.5 & SECTION 5.4 QUANTITATIVE BENCHMARKS
     # =========================================================================
-    story.append(Paragraph("5.4 Quantitative Benchmarks &amp; MTTR Evaluation", style_h1))
+    # Figure 5.5: Terraform Output
+    s5_path = os.path.join(ASSETS_DIR, "screenshot4_terraform_aws.png")
+    img_s5 = get_proportional_image(s5_path, max_width=420)
+    if img_s5:
+        story.append(img_s5)
+        story.append(Paragraph("<b>Figure 5.5:</b> Terraform Automated Infrastructure Provisioning Output in AWS Region us-east-1", style_caption))
     story.append(Spacer(1, 6))
+
+    story.append(Paragraph("5.4 Quantitative Benchmarks &amp; MTTR Evaluation", style_h1))
+    story.append(Spacer(1, 4))
 
     eval_p = (
         "To rigorously quantify the operational impact of the automated self-healing framework, automated failure injection "
@@ -586,14 +594,14 @@ def build_pdf():
         "in Mean Time to Recovery (MTTR)</b>, restoring service operation in an average of <b>18.4 seconds</b> compared to 12–33 minutes for human on-call triage."
     )
     story.append(Paragraph(eval_p, style_body))
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 6))
 
     # Benchmarks Table
-    story.append(Paragraph("<b>Table 5.1: Performance Comparison: Manual Remediation vs. Automated Self-Healing</b>", ParagraphStyle('TableTitle', fontName='Times-Bold', fontSize=10, textColor=colors.black)))
+    story.append(Paragraph("<b>Table 5.1: Performance Comparison: Manual Remediation vs. Automated Self-Healing</b>", ParagraphStyle('TableTitle', fontName='Times-Bold', fontSize=9.5, textColor=colors.black)))
     bench_data = [
-        [Paragraph("<b>Metric / Parameter</b>", ParagraphStyle('TH1', fontName='Times-Bold', fontSize=9.5)),
-         Paragraph("<b>Manual Operational Response</b>", ParagraphStyle('TH2', fontName='Times-Bold', fontSize=9.5)),
-         Paragraph("<b>Automated Self-Healing DevOps</b>", ParagraphStyle('TH3', fontName='Times-Bold', fontSize=9.5, textColor=colors.HexColor("#166534")))],
+        [Paragraph("<b>Metric / Parameter</b>", ParagraphStyle('TH1', fontName='Times-Bold', fontSize=9)),
+         Paragraph("<b>Manual Operational Response</b>", ParagraphStyle('TH2', fontName='Times-Bold', fontSize=9)),
+         Paragraph("<b>Automated Self-Healing DevOps</b>", ParagraphStyle('TH3', fontName='Times-Bold', fontSize=9, textColor=colors.HexColor("#166534")))],
         [Paragraph("Fault Detection Latency", style_body), Paragraph("5 – 15 Minutes (Human notification delay)", style_body), Paragraph("<b>10 – 30 Seconds</b> (Nagios active polling cycle)", style_body)],
         [Paragraph("Triage &amp; Authentication", style_body), Paragraph("3 – 8 Minutes (VPN &amp; SSH login time)", style_body), Paragraph("<b>&lt; 1 Second</b> (Pre-authorized event trigger)", style_body)],
         [Paragraph("Remediation Execution", style_body), Paragraph("2 – 5 Minutes (Manual shell commands)", style_body), Paragraph("<b>4 – 6 Seconds</b> (Idempotent Ansible execution)", style_body)],
@@ -602,33 +610,32 @@ def build_pdf():
         [Paragraph("Human Error Risk", style_body), Paragraph("High (Manual terminal typing under stress)", style_body), Paragraph("<b>Zero</b> (Deterministic automated playbook)", style_body)],
         [Paragraph("Audit Trail Completeness", style_body), Paragraph("Incomplete (Fragmented bash history)", style_body), Paragraph("<b>100%</b> (Centralized timestamped audit log)", style_body)]
     ]
-    bench_table = Table(bench_data, colWidths=[140, 172, 175])
+    bench_table = Table(bench_data, colWidths=[130, 165, 175])
     bench_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#f1f5f9")),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-        ('LEFTPADDING', (0, 0), (-1, -1), 7),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 7),
+        ('TOPPADDING', (0, 0), (-1, -1), 3.5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3.5),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
     ]))
     story.append(bench_table)
-    story.append(Spacer(1, 14))
+    story.append(Spacer(1, 8))
 
     conclusion_p = (
-        "<b>Summary of Experimental Findings:</b> The results confirm that combining Infrastructure as Code (Terraform) with "
-        "declarative configuration management (Ansible) and active state-machine monitoring (Nagios Core) effectively eliminates single "
-        "points of failure at the software layer. By offloading routine daemon restarts to deterministic automation, site reliability engineers "
-        "can focus on architectural improvements rather than repetitive incident response."
+        "<b>Summary of Findings:</b> Combining Infrastructure as Code (Terraform) with "
+        "declarative configuration management (Ansible) and active state monitoring (Nagios Core) effectively eliminates single "
+        "points of failure at the software layer, reducing operational MTTR from ~20 minutes to under 19 seconds."
     )
     story.append(Paragraph(conclusion_p, style_body))
 
     story.append(PageBreak())
 
     # =========================================================================
-    # PAGE 12: REFERENCES & SUBMISSION CHECKLIST
+    # PAGE 12: REFERENCES & REPOSITORY STATEMENT (NO CHECKLIST)
     # =========================================================================
     story.append(Paragraph("REFERENCES", style_h1))
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
 
     style_ref = ParagraphStyle(
         'ReportRef',
@@ -636,17 +643,6 @@ def build_pdf():
         fontSize=9.5,
         leading=13.5,
         alignment=0,
-        textColor=colors.HexColor("#1e293b"),
-        spaceAfter=3
-    )
-
-    style_chk = ParagraphStyle(
-        'ReportChk',
-        fontName='Times-Roman',
-        fontSize=10,
-        leading=14,
-        alignment=0,
-        leftIndent=12,
         textColor=colors.HexColor("#1e293b"),
         spaceAfter=3
     )
@@ -666,23 +662,22 @@ def build_pdf():
     for r in refs:
         story.append(Paragraph(r, style_ref))
 
-    story.append(Spacer(1, 8))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#cbd5e1"), spaceAfter=10))
+    story.append(Spacer(1, 12))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#cbd5e1"), spaceAfter=12))
 
-    chk_title = Paragraph("<b>Submission Checklist:</b>", ParagraphStyle('ChkTitle', fontName='Times-Bold', fontSize=11.5, textColor=colors.black))
-    story.append(chk_title)
-    story.append(Spacer(1, 4))
+    repo_box_title = Paragraph("<b>Project Code Availability &amp; Repository:</b>", ParagraphStyle('CodeAvailTitle', fontName='Times-Bold', fontSize=11, textColor=colors.black, spaceAfter=6))
+    story.append(repo_box_title)
 
-    chk_items = [
-        "✔ <b>Title &amp; Student Identifiers:</b> Ojaswi Bhardwaj (Reg: 12319444, Roll: 55, Sec: K302316, Sem: 7, Faculty: Rakesh Gaganeja) verified.",
-        "✔ <b>Official LPU Format:</b> Cover page, Abstract, Table of Contents, Chapters 1–5, References, and footers replicated.",
-        "✔ <b>GitHub Repository &amp; Code:</b> Complete codebase, playbooks, and docs hosted at https://github.com/ojaswi1234/aws_monitoring_terraform.git.",
-        "✔ <b>Diagrams &amp; Visuals:</b> High-resolution system architecture diagram and 4 labeled operational screenshots included.",
-        "✔ <b>Source Code &amp; Benchmarks:</b> Key Terraform, Ansible, and Nagios implementation snippets and quantitative MTTR metrics provided.",
-        "✔ <b>Page Numbering:</b> Continuous sequential pagination cross-referenced with Table of Contents."
-    ]
-    for ci in chk_items:
-        story.append(Paragraph(ci, style_chk))
+    repo_box_text = (
+        "The complete source code, automated infrastructure configurations, Ansible playbooks, "
+        "Nagios monitoring plugins, event handler scripts, and interactive web management console for this project "
+        "are publicly accessible and version-controlled on GitHub at:<br/>"
+        "<font color='#1d4ed8'><u>https://github.com/ojaswi1234/aws_monitoring_terraform.git</u></font><br/><br/>"
+        "<b>Student Name:</b> Ojaswi Bhardwaj (Registration No.: 12319444 | Roll No.: 55 | Section: K302316 | Semester: 7)<br/>"
+        "<b>Academic Institution:</b> School of Computer Science &amp; Engineering, Lovely Professional University, Punjab, India<br/>"
+        "<b>Project Faculty Guide:</b> Mr. Rakesh Gaganeja, Department of Computer Science &amp; Engineering"
+    )
+    story.append(Paragraph(repo_box_text, style_body))
 
     # Build the document
     doc.build(story, canvasmaker=NumberedCanvas)
